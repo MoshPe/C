@@ -1,0 +1,2 @@
+t));
+	assert(newStudent);
