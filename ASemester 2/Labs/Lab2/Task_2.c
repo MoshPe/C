@@ -24,6 +24,7 @@ int main()
 	student* arr;
 	printf("\nEnter the number of students:");
 	scanf("%d", &size);
+	
 	arr = Create_Class(size);
 	puts("\n");
 	for (i = 0; i < size; i++)
@@ -35,11 +36,19 @@ int main()
 	return 0;
 }
 
+/*
+Function name: Create_Class From type struct student
+Input: size of the array that should be created dynamically
+Output: return the address of the new array that made form struct student
+Algoritem: creating an array dynamically and inserting the info in the fields place:
+	.name, .marks, .avg
+*/
 student* Create_Class(int size)
 {
 	int i, j;
 	student* newStudent;
 	char nameCheck[50];
+	//creating an array type of struct student
 	newStudent = (student*)malloc(size * sizeof(student));
 	assert(newStudent);
 	for (i = 0; i < size; i++)
@@ -47,6 +56,7 @@ student* Create_Class(int size)
 		printf("\nEnter your name: ");
 		rewind(stdin);
 		gets(nameCheck);
+		//creating and string in size of the nameCheck 
 		newStudent[i].name = (char*)malloc((strlen(nameCheck) + 1) * sizeof(char));
 		if (newStudent[i].name == NULL)
 		{
@@ -59,8 +69,14 @@ student* Create_Class(int size)
 			scanf("%d", &newStudent[i].marks[j]);
 		Avg_Mark(&newStudent[i]);
 	}
+	//return the address of the struct student array
 	return newStudent;
 }
+/*
+Function name: Avg_Mark
+Input: a pointer struct from type student
+Output: just inputing the avg in the avg field 
+*/
 void Avg_Mark(student* s)
 {
 	float avr = 0;
