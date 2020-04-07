@@ -37,8 +37,14 @@ void calculate(fraction* s, int size)
 				sum = sum / i;
 				mul = mul / i;
 			}
-			else
+			else if(mul % sum !=0)
 				count++;
+				else if (mul / sum !=1)
+					{
+					sum = sum/mul;
+					mul = mul/sum;
+					}
+				
 		}
 	} while (count != 5);
 	printf(" %d/%d %c", sum, mul,(sum>mul)?'=':' ');

@@ -30,7 +30,7 @@ void main()
 }
 int is_in(point p, circle c)
 {
-	int d,x,y;
+	float d,x,y;
 	x = pow((p.x) - (c.Cp.x), 2);
 	y = pow((p.y) - (c.Cp.y), 2);
 	d = sqrt(x+y);
