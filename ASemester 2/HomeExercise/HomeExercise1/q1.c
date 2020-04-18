@@ -13,48 +13,50 @@ void outputInfo(fraction* s, int size);
 void main()
 {
 	fraction Fractions[9];
-	fraction* p= &Fractions[0];
+	fraction* p = &Fractions[0];
 	outputInfo(p, 9);
 }
+/*
+Function name: calculate
+Input: getting the fraction struct and the quatity of the fractions
+Output: outputting the smallest fraction possible  
+Algoritem: first it counts the mone and the mechane together by the rules
+			to one fraction, then the fucntion finds the highest number that
+			divide them both
+*/
 void calculate(fraction* s, int size)
 {
-	int i,count=0;
-	int mul = s[0].b;
-	int sum = 0;
+	int i, count = 0;
+	long int t,mechaneX,moneX;
+	long int mechane = s[0].b;
+	long int mone = 0;
 	for (i = 1; i < size; i++)
-		mul = mul * s[i].b;
+		mechane = mechane * s[i].b;
 	for (i = 0; i < size; i++)
-		sum =sum+ s[i].a * (mul / s[i].b);
+		mone = mone + s[i].a * (mechane / s[i].b);
 	for (i = 0; i < size; i++)
-		printf(" %d/%d %c", s[i].a, s[i].b,(i==size-1)?'=':'+');
-	do
+		printf(" %d/%d %c", s[i].a, s[i].b, (i == size - 1) ? '=' : '+');
+		//for not losing the original number
+		moneX = mone;
+		mechaneX = mechane;
+		//calculates the highest number that divide both mone and mechane
+	do {
+		t = moneX % mechaneX;
+		if (2 * t > mechaneX)
+			t = mechaneX - t;
+		moneX = mechaneX;
+		mechaneX = t;
+	} while (moneX != 0 && mechaneX != 0);
+	mone = mone / moneX;
+	mechane = mechane / moneX;
+	while (mone>mechane)
 	{
-		count = 0;
-		for (i = 1; i < 8; i++)
-		{
-			if (sum % i == 0 && mul % i == 0)
-			{
-				sum = sum / i;
-				mul = mul / i;
-			}
-			else if(mul % sum !=0)
-				count++;
-				else if (mul / sum !=1)
-					{
-					sum = sum/mul;
-					mul = mul/sum;
-					}
-				
-		}
-	} while (count != 5);
-	printf(" %d/%d %c", sum, mul,(sum>mul)?'=':' ');
-	count = 0;
-	while (sum>mul)
-	{
-		sum = sum - mul;
+		mone = mone - mechane;
 		count++;
 	}
-	printf(" %d and %d/%d", count, sum, mul);
+	if (count > 0)
+		printf("%ld and", count);
+	printf(" %ld/%ld", mone, mechane);
 }
 void outputInfo(fraction* s, int size)
 {

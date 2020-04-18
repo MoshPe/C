@@ -45,7 +45,7 @@ void Find(FILE* f, char* course)
 	strcpy(Out_Course_Name, course);
 	strcat(Out_Course_Name, ".txt");
 	out = fopen(Out_Course_Name, "wt");
-	while (fgets(Stud, Course_Name + Stud_Full_Name + Stud_ID + 1, f)!=NULL)
+	while (fgets(Stud, Course_Name + Stud_Full_Name + Stud_ID+1, f)!=NULL)
 	{
 		strncpy(s.Course, Stud, Course_Name);
 		s.Course[Course_Name] = '\0';
