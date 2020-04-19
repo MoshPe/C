@@ -6,7 +6,7 @@
 
 typedef struct Section {
 	char Code[10];
-	char* SeqName;//max 20chars
+	char* SeqName;//max 20 chars
 	int NumberOfItemsSold;
 }Section;
 #define N 3
@@ -30,8 +30,10 @@ void main()
 	Greater_Worse(ps, pi, N);
 	printf("\nThe best Section is %s code: %s\n", pi[0]->SeqName, pi[0]->Code);
 	printf("\nThe worse Section is %s code: %s\n", pi[1]->SeqName, pi[1]->Code);
-
+	for (i = 0; i < N; i++)
+		free(s[i].SeqName);
 }
+
 void Inputing_Data(Section* s, int size)
 {
 	int i;
@@ -41,7 +43,7 @@ void Inputing_Data(Section* s, int size)
 		rewind(stdin);
 		printf("Please enter the code for the Section number %d (max 10): \n", i+1);
 		gets(s[i].Code);
-		CheckStrings(&s[i].Code, 10, "code", i);
+		CheckStrings(s[i].Code, 10, "code", i);
 		printf("Please enter the name for the Section number %d (max 20): \n", i+1);
 		gets(name);
 		CheckStrings(&name[0], 20, "name", i);
@@ -55,8 +57,6 @@ void Inputing_Data(Section* s, int size)
 		printf("Please enter the quantities of items sold in Section number %d : \n", i+1);
 		scanf("%d", &s[i].NumberOfItemsSold);
 	}
-
-
 }
 void CheckStrings(char* s, unsigned int size, char* name, int index)
 {
