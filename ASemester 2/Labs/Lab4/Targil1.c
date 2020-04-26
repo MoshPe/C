@@ -3,8 +3,6 @@
 #include<stdio.h>
 #include<string.h>
 
-
-
 #define MAX 256
 #define Code_Book_Len 10
 
@@ -81,7 +79,8 @@ void output_library(Library* L, FILE* out)
 }
 void output_book(Book* B, FILE* out)
 {
-	fprintf(out, "%-10s%s\n", B->Code, B->BookName);
+	fprintf(out, "%-10s",B->Code);
+	fprintf(out,"%s\n",B->BookName);
 }
 void Get_Lost(char* str)
 {
