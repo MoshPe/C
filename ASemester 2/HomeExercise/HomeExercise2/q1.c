@@ -2,11 +2,10 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include<math.h>
 
 #define MAX_NAME 150
 #define GRADE 5
-
-
 typedef struct Student
 {
 	char* name;
@@ -17,18 +16,21 @@ typedef struct Student
 }Student;
 typedef struct University
 {
-	Student* Stud;
+	struct Student* Stud;
 	int students;
 }University;
+
 void Error_Msg(char* msg);
 void InputData(University* inputUniv, FILE* inputFile);
 void CheckStrings(char* s, unsigned int size, char* name);
 void OutPutData(University* inputUniv, FILE* outputFile);
 void finalGradePrint(University* inputUniv, FILE* outputFile);
 int HWCount(char* binary);
-float finalGradeAvg(float grade, int ExercisesGradeCount);
-
-
+double finalGradeAvg(float grade, int ExercisesGradeCount);
+void Statistics(University* inputUniv, FILE* outputFile);
+void BlackList(University* inputUniv, FILE* outputFile);
+void input_HWGrade(University* inputUniv);
+void FreeThemAll(University* inputUniv, FILE* outputFile);
 
 void main()
 {
@@ -42,130 +44,205 @@ void main()
 	if (!(out = fopen("OutPut.txt", "w")))
 		Error_Msg("The OutPut file is wrong");
 	printf("*************************************************************************\n");
-	printf("Select option (a - input.file, b - OutPut.file, c - finalGradeCalc, d - Stastistics.file,e - Black List, f - Exit): \n");
-	printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!\n");
+	printf("Select option: \na - input.file\nb - OutPut.file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
+	printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!:\n>>>: ");
 	rewind(stdin);
-	scanf("%c",&MenuChoice);
+	scanf("%c", &MenuChoice);
+	while (MenuChoice!= 'a' &&MenuChoice!= 'b' &&MenuChoice!= 'c' &&MenuChoice!= 'd' &&MenuChoice!= 'e' &&MenuChoice!= 'f' )
+	{
+		printf("\n invalid input please try again \n>>>: ");
+		rewind(stdin);
+		scanf("%c", &MenuChoice);
+	}
 	do
 	{
 		switch (MenuChoice)
 		{
 		case 'a':
 			InputData(&Univ, in);
+			input_HWGrade(&Univ);
 			flag = 1;
 			break;
-			case 'b':
-					if (flag == 0)
-						break;
-				OutPutData(&Univ, out);
+		case 'b':
+			if (flag == 0)
 				break;
-			case 'c' :
-					if (flag == 0)
-						break;
-					finalGradePrint(&Univ, out);
+			OutPutData(&Univ, out);
+			break;
+		case 'c':
+			if (flag == 0)
 				break;
-			case 'd' :
-					if (flag == 0)
-						break;
+			finalGradePrint(&Univ, out);
+			break;
+		case 'd':
+			if (flag == 0)
 				break;
-			case 'e' :
-					if (flag == 0)
-						break;
+			Statistics(&Univ, out);
+			break;
+		case 'e':
+			if (flag == 0)
 				break;
-			case 'f' :
-					if (flag == 0)
-						break;
+			BlackList(&Univ, out);
+			break;
+		/*case 'f':
+			if (flag == 0)
 				break;
+			FreeThemAll(&Univ, out);
+			break;*/
 		}
 		if (flag == 0)
 			printf("!!!Please select input first in order to proceed  !!!\n");
-		printf("*************************************************************************\n");
-		printf("Select option (a - input.file, b - OutPut.file, c - finalGradeCalc, d - Stastistics.file,e - Black List, f - Exit): \n");
+		printf("\n*************************************************************************\n");
+		printf("Select option: \na - input.file\nb - OutPut.file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit: \n>>>: ");
 		rewind(stdin);
 		scanf("%c", &MenuChoice);
-	} while (MenuChoice != 'f');
-	//////////////////////////////////////FREEEEEEEEEEEEEEEEEEEEEEEEE/////////////////////////////
-	
+		while (MenuChoice!= 'a' &&MenuChoice!= 'b' &&MenuChoice!= 'c' &&MenuChoice!= 'd' &&MenuChoice!= 'e' &&MenuChoice!= 'f' )
+	{
+		printf("\n invalid input please try again \n>>>: ");
+		rewind(stdin);
+		scanf("%c", &MenuChoice);
+	}
+	} while (flag == 0 || MenuChoice != 'f');
+	FreeThemAll(&Univ, out);
 	fclose(in);
 	fclose(out);
 }
 void InputData(University* inputUniv, FILE* inputFile)
 {
+	int gradeCount = 0;
 	char name[MAX_NAME];
-	Student* arr;
+	//Student* arr;
 	int i = 1;
-	arr = (Student*)malloc(sizeof(Student));
-	if (arr == NULL)
+	inputUniv->Stud = (Student*)malloc(sizeof(Student));
+	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-	while (fscanf(inputFile, "%s %ld %f %s", name, &arr[i - 1].id, &arr[i - 1].MtmGrade, arr[i - 1].Grade) != EOF)
+	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
 	{
+		CheckStrings(name, 99, "name");
+		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
+		if (inputUniv->Stud[i - 1].name == NULL)
+		{
+			free(inputUniv->Stud[i - 1].name);
+			Error_Msg("No memory allocated for name");
+		}
+		strcpy(inputUniv->Stud[i - 1].name, name);
 		//increase number of students
 		i++;
 		//putting is an other array to not lose it while we're tying to reallocing 
-		Student* Test = arr;
-		arr = (Student*)realloc(arr, i * sizeof(Student));
-		if (arr == NULL)
+		Student* Test = inputUniv->Stud;
+		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, i * sizeof(Student));
+		if (inputUniv->Stud == NULL)
 		{
 			free(Test);
-			Error_Msg("No memory allocated for arr");
+			Error_Msg("No memory allocated for inputUniv->Stud");
 		}
-		CheckStrings(name, 99, "name");
-		arr[i].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
-		if (arr[i].name == NULL)
-		{
-			free(arr[i].name);
-			Error_Msg("No memory allocated for name");
-		}
-		strcpy(arr[i].name, name);
 	}
-	//giving the array back to the main that sent the pointer
-	inputUniv->Stud = arr;
-	inputUniv->students = i - 1;
+		inputUniv->students = i - 1;
+}
+void OutPutData(University* inputUniv, FILE* outputFile)
+{
+	fprintf(outputFile, "\nOption B\n");
+	fprintf(outputFile, "Print OutPut.file\n\n");
+	int i;
+	int gradeCount;
+	for (i = 0; i < inputUniv->students; i++)
+		fprintf(outputFile, "Student %d : %s %ld %.2f %c\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
+}
+int HWCount(char* binary)
+{
+	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
+}
+void finalGradePrint(University* inputUniv, FILE* outputFile)
+{
+	fprintf(outputFile, "\nOption C\n");
+	fprintf(outputFile, "finalGradeCalc\n\n");
+	int i;
+	int gradeCount;
+	for (i = 0; i < inputUniv->students; i++)
+	{
+		gradeCount = HWCount(inputUniv->Stud[i].Grade);
+		fprintf(outputFile, "Student %d : %s %ld %.2f %d final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, (gradeCount >= 3) ? 1 : 0, finalGradeAvg(inputUniv->Stud[i].MtmGrade, (gradeCount >= 3) ? 1 : 0));
+	}
+}
+void Statistics(University* inputUniv, FILE* outputFile)
+{
+	fprintf(outputFile, "\nOption D\n");
+	fprintf(outputFile, "Statistics\n\n");
+	int i;
+	float avg = 0;
+	double sd = 0;//Standard Deviation
+	float max = inputUniv->Stud[0].MtmGrade;
+	float min = inputUniv->Stud[0].MtmGrade;
+	for (i = 0; i < inputUniv->students; i++)
+	{
+		avg += inputUniv->Stud[i].MtmGrade;
+		if (inputUniv->Stud[i].MtmGrade > max)
+			max = inputUniv->Stud[i].MtmGrade;
+		if (inputUniv->Stud[i].MtmGrade < min)
+			min = inputUniv->Stud[i].MtmGrade;
+	}
+	avg = avg / (float)inputUniv->students;
+	for (i = 0; i < inputUniv->students; i++)
+		sd += pow((inputUniv->Stud[i].MtmGrade - avg), 2);
+	fprintf(outputFile, "The Average is: %.2f\n", avg);
+	fprintf(outputFile, "The Standard Deviation is: %.2f\n", sqrt(sd / (float)inputUniv->students));
+	fprintf(outputFile, "The Amount of students is: %d\n", inputUniv->students);
+	fprintf(outputFile, "The range is %.2f - %.2f\n", max, min);
+}
+void BlackList(University* inputUniv, FILE* outputFile)
+{
+	fprintf(outputFile, "\nOption E\n");
+	fprintf(outputFile, "BlackList\n\n");
+	int i,j;
+	for (i = 0,j=1; i < inputUniv->students; i++)
+	{
+		if (inputUniv->Stud[i].HWfinalGrade == '0')
+			{
+				fprintf(outputFile, "Student %d: %s %ld\n", j, inputUniv->Stud[i].name, inputUniv->Stud[i].id);
+				j++;
+			}
+	}
+}
+
+void FreeThemAll(University* inputUniv, FILE* outputFile)///////free
+{
+	fprintf(outputFile, "\nOption F\n");
+	fprintf(outputFile, "End Of Program");
+	int i;
+	for (i = 0; i < inputUniv->students; i++)
+		free(inputUniv->Stud[i].name);
+	free(inputUniv->Stud);
+}
+void input_HWGrade(University* inputUniv)
+{
+	int i,gradeCount;
+	for (i = 0; i < inputUniv->students; i++)
+	{
+		gradeCount = HWCount(inputUniv->Stud[i].Grade);
+		inputUniv->Stud[i].HWfinalGrade = (gradeCount >= 3) ? '1' : '0';
+	}
+}
+double finalGradeAvg(float grade, int ExercisesGradeCount)
+{
+	if (grade > 55.0)
+	{
+		double gradeFinal;
+		double ExercisesFinal;
+		gradeFinal = grade * 0.85;
+		ExercisesFinal = (ExercisesGradeCount * 15.0);
+		return ExercisesFinal + gradeFinal;
+	}
+	return grade;
 }
 void Error_Msg(char* msg)
 {
-	printf("\n%s", msg);
+	fprintf(stderr,"\n%s", msg);
 	exit(1);
 }
 void CheckStrings(char* s, unsigned int size, char* name)
 {
 	while (strlen(s) > size)
 	{
-		printf("\ninvalid %s!-the %s is too long, please try again\n", name, name);
-		printf("Please enter the %s (max %d): \n", name, size);
-		rewind(stdin);
-		scanf("%s", s);
+		fprintf(stderr,"\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n", name, name);
+		exit(1);
 	}
-}
-void OutPutData(University* inputUniv, FILE* outputFile)
-{
-	int i;
-	int count = inputUniv->students;
-	for (i = 0; i < count; i++)
-		fprintf(outputFile, "Student %d : %s %ld %.2f %d\n", i + 1, *inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, (HWCount(*inputUniv->Stud[i].Grade) >= 3) ? 1 : 0);
-}
-int HWCount(char* binary)
-{
-	return (*binary == '\0') ? 0 : (*binary == 1) ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
-}
-void finalGradePrint(University* inputUniv, FILE* outputFile)
-{
-	int i;
-	int count = inputUniv->students;
-	int gradeCount;
-	fseek(outputFile, 28, SEEK_SET);
-	for (i = 0; i < count; i++)
-	{
-		gradeCount = HWCount(*inputUniv->Stud[i].Grade);
-		fprintf(outputFile," final: %.2f\n", finalGradeAvg(inputUniv->Stud[i].MtmGrade, gradeCount));
-		fseek(outputFile, 28, SEEK_CUR);
-	}
-}
-float finalGradeAvg(float grade, int ExercisesGradeCount)
-{
-	float gradeFinal;
-	float ExercisesFinal;
-	gradeFinal = grade * 0.85;
-	ExercisesFinal = (ExercisesGradeCount * 15.0);
-		return ExercisesFinal + gradeFinal;
 }

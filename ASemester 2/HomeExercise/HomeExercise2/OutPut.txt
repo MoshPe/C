@@ -1,0 +1,11 @@
+
+Option D
+Statistics
+
+The Average is: 69.452499
+The Standard Deviation is: 20.883350
+The Amount of students is: 4
+The range is 99.80 - 49.78
+
+Option F
+End Of Program
