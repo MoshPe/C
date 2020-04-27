@@ -1,2 +1,1 @@
-
-	} while (flag == 0 || MenuChoice != '
+switch (MenuChoice)

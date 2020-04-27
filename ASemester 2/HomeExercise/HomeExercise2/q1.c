@@ -47,9 +47,11 @@ void main()
 		Error_Msg("The OutPut file is wrong");
 	do
 	{	
-		printf("*************************************************************************\n");
+		printf("\n*************************************************************************\n");
 		printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
-		printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!:\n>>>: ");
+		if (flag == 0)
+		printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!\n");
+		printf(">>>: ");
 		rewind(stdin);
 		scanf("%c", &MenuChoice);
 		if (MenuChoice == 'a' && flag == 0)
@@ -62,7 +64,7 @@ void main()
 			switch (MenuChoice)
 			{
 			case 'a':
-				printf("Input data can be execute one per run!!!");
+				printf("\n\nInput data can be execute one per run!!!\n\n");
 				break;
 			case 'b':
 				OutPutData(&Univ, out);
@@ -82,18 +84,16 @@ void main()
 				fclose(out);
 				break;
 			default:
-				printf("\n invalid input please try again \n>>>: ");
+				printf("\n Invalid input, Please try again!!! \n>>>: ");
 				rewind(stdin);
 				scanf("%c", &MenuChoice);
 				break;
 			}
 		}
 		else //flag == 0
-			printf("!!!Please select input first in order to proceed  !!!\n");
+			printf("!!!  Invalid input(first use choose option a first otherwise try again)  !!!\n");
 	} while (MenuChoice != 'f');
 }
-<<<<<<< HEAD
-=======
 void CheckStrings(char* s, unsigned int size, char* name)
 {
 	while (strlen(s) > size)
@@ -102,7 +102,6 @@ void CheckStrings(char* s, unsigned int size, char* name)
 		exit(1);
 	}
 }
->>>>>>> 0c243f13abcde97155c21108b6484429abeffd62
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
@@ -112,11 +111,7 @@ void InputData(University* inputUniv, FILE* inputFile)
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-<<<<<<< HEAD
-	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
-=======
 	while ( fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
->>>>>>> 0c243f13abcde97155c21108b6484429abeffd62
 	{
 		CheckStrings(name, 99, "name");
 		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
@@ -233,15 +228,6 @@ void FreeThemAll(University* inputUniv, FILE* outputFile)///////free
 int HWCount(char* binary)
 {
 	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
-}
-void input_HWGrade(University* inputUniv)
-{
-	int i,gradeCount;
-	for (i = 0; i < inputUniv->students; i++)
-	{
-		gradeCount = HWCount(inputUniv->Stud[i].Grade);
-		inputUniv->Stud[i].HWfinalGrade = (gradeCount >= 3) ? '1' : '0';
-	}
 }
 void Error_Msg(char* msg)
 {
