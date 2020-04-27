@@ -58,7 +58,7 @@ void main()
 			input_HWGrade(&Univ);
 			flag = 1;
 		}
-		elseif (flag == 1){	
+		else if (flag == 1){	
 			switch (MenuChoice)
 			{
 			case 'a':
@@ -91,6 +91,7 @@ void main()
 		else //flag == 0
 			printf("!!!Please select input first in order to proceed  !!!\n");
 	} while (MenuChoice != 'f');
+}
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
@@ -100,16 +101,13 @@ void InputData(University* inputUniv, FILE* inputFile)
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-	int a;
-	do{
-		a = fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade);
-	while ( a != EOF)
+	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
 	{
 		CheckStrings(name, 99, "name");
 		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
 		if (inputUniv->Stud[i - 1].name == NULL)
 		{
-			free(inputUniv->Stud[i - 1]);
+			free(inputUniv->Stud);
 			Error_Msg("No memory allocated for name");
 		}
 		strcpy(inputUniv->Stud[i - 1].name, name);
