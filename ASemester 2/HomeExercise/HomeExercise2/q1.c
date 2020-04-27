@@ -29,7 +29,7 @@ void Statistics(University* inputUniv, FILE* outputFile);
 void BlackList(University* inputUniv, FILE* outputFile);
 void FreeThemAll(University* inputUniv, FILE* outputFile);
 void input_HWGrade(University* inputUniv);
-double finalGradeAvg(float grade, int ExercisesGradeCount);
+double finalGradeAvg(float grade, char ExercisesGradeCount);
 void CheckStrings(char* s, unsigned int size, char* name);
 int HWCount(char* binary);
 void Error_Msg(char* msg);
@@ -92,6 +92,17 @@ void main()
 			printf("!!!Please select input first in order to proceed  !!!\n");
 	} while (MenuChoice != 'f');
 }
+<<<<<<< HEAD
+=======
+void CheckStrings(char* s, unsigned int size, char* name)
+{
+	while (strlen(s) > size)
+	{
+		fprintf(stderr,"\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n", name, name);
+		exit(1);
+	}
+}
+>>>>>>> 0c243f13abcde97155c21108b6484429abeffd62
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
@@ -101,7 +112,11 @@ void InputData(University* inputUniv, FILE* inputFile)
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
+<<<<<<< HEAD
 	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
+=======
+	while ( fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
+>>>>>>> 0c243f13abcde97155c21108b6484429abeffd62
 	{
 		CheckStrings(name, 99, "name");
 		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
@@ -118,31 +133,53 @@ void InputData(University* inputUniv, FILE* inputFile)
 		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, i * sizeof(Student));
 		if (inputUniv->Stud == NULL)
 		{
-			free(Test);
+			for (i=i-1;i>=0; i--)
+				free(inputUniv->Stud[i].name);
+			free(inputUniv->Stud);			
 			Error_Msg("No memory allocated for inputUniv->Stud");
 		}
 	}
 		inputUniv->students = i - 1;
+}
+void input_HWGrade(University* inputUniv)
+{
+	int i,gradeCount;
+	for (i = 0; i < inputUniv->students; i++)
+	{
+		gradeCount = HWCount(inputUniv->Stud[i].Grade);
+		inputUniv->Stud[i].HWfinalGrade = (gradeCount >= 3) ? '1' : '0';
+	}
 }
 void OutPutData(University* inputUniv, FILE* outputFile)
 {
 	fprintf(outputFile, "\nOption B\n");
 	fprintf(outputFile, "Print OutPut.file\n\n");
 	int i;
-	int gradeCount;
 	for (i = 0; i < inputUniv->students; i++)
 		fprintf(outputFile, "Student %d : %s %ld %.2f %c\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
+}
+double finalGradeAvg(float grade, char ExercisesGradeCount)
+{
+	if (grade > 55.0)
+	{
+		double gradeFinal;
+		double ExercisesFinal;
+		gradeFinal = grade * 0.85;
+		ExercisesFinal = ((ExercisesGradeCount-'0') * 15.0);
+		return ExercisesFinal + gradeFinal;
+	}
+	return grade;
 }
 void finalGradePrint(University* inputUniv, FILE* outputFile)
 {
 	fprintf(outputFile, "\nOption C\n");
 	fprintf(outputFile, "finalGradeCalc\n\n");
 	int i;
-	int gradeCount;
+	float FinalAvg;
 	for (i = 0; i < inputUniv->students; i++)
 	{
-		gradeCount = HWCount(inputUniv->Stud[i].Grade);
-		fprintf(outputFile, "Student %d : %s %ld %.2f %d final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, (gradeCount >= 3) ? 1 : 0, finalGradeAvg(inputUniv->Stud[i].MtmGrade, (gradeCount >= 3) ? 1 : 0));
+		FinalAvg = finalGradeAvg(inputUniv->Stud[i].MtmGrade,inputUniv->Stud[i].HWfinalGrade);
+		fprintf(outputFile, "Student %d : %s %ld %.2f %c final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade,inputUniv->Stud[i].HWfinalGrade,FinalAvg);
 	}
 }
 void Statistics(University* inputUniv, FILE* outputFile)
@@ -193,6 +230,10 @@ void FreeThemAll(University* inputUniv, FILE* outputFile)///////free
 		free(inputUniv->Stud[i].name);
 	free(inputUniv->Stud);
 }
+int HWCount(char* binary)
+{
+	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
+}
 void input_HWGrade(University* inputUniv)
 {
 	int i,gradeCount;
@@ -201,30 +242,6 @@ void input_HWGrade(University* inputUniv)
 		gradeCount = HWCount(inputUniv->Stud[i].Grade);
 		inputUniv->Stud[i].HWfinalGrade = (gradeCount >= 3) ? '1' : '0';
 	}
-}
-double finalGradeAvg(float grade, int ExercisesGradeCount)
-{
-	if (grade > 55.0)
-	{
-		double gradeFinal;
-		double ExercisesFinal;
-		gradeFinal = grade * 0.85;
-		ExercisesFinal = (ExercisesGradeCount * 15.0);
-		return ExercisesFinal + gradeFinal;
-	}
-	return grade;
-}
-void CheckStrings(char* s, unsigned int size, char* name)
-{
-	while (strlen(s) > size)
-	{
-		fprintf(stderr,"\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n", name, name);
-		exit(1);
-	}
-}
-int HWCount(char* binary)
-{
-	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
 }
 void Error_Msg(char* msg)
 {
