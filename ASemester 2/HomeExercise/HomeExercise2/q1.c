@@ -6,6 +6,7 @@
 
 #define MAX_NAME 150
 #define GRADE 5
+
 typedef struct Student
 {
 	char* name;
@@ -14,9 +15,10 @@ typedef struct Student
 	char Grade[GRADE + 1];
 	char HWfinalGrade;
 }Student;
+
 typedef struct University
 {
-	struct Student* Stud;
+	Student* Stud;
 	int students;
 }University;
 
@@ -44,7 +46,7 @@ void main()
 	if (!(out = fopen("OutPut.txt", "w")))
 		Error_Msg("The OutPut file is wrong");
 	printf("*************************************************************************\n");
-	printf("Select option: \na - input.file\nb - OutPut.file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
+	printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
 	printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!:\n>>>: ");
 	rewind(stdin);
 	scanf("%c", &MenuChoice);
