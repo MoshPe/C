@@ -28,5 +28,18 @@ BlackList
 
 Student 1: Avi 31456
 
+Option E
+BlackList
+
+Student 1: Avi 31456
+
+Option B
+Print OutPut.file
+
+Student 1 : Nir 32251 99.80 1
+Student 2 : Ely 12347 77.89 1
+Student 3 : Moshe 45321 50.34 1
+Student 4 : Avi 31456 49.78 0
+
 Option F
 End Of Program

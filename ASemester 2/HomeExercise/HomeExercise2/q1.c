@@ -79,9 +79,6 @@ void main()
 				BlackList(&Univ, out);
 				break;
 			case 'f':
-				FreeThemAll(&Univ, out);
-				fclose(in);
-				fclose(out);
 				break;
 			default:
 				printf("\n Invalid input, Please try again!!! \n>>>: ");
@@ -93,6 +90,9 @@ void main()
 		else //flag == 0
 			printf("!!!  Invalid input(first use choose option a first otherwise try again)  !!!\n");
 	} while (MenuChoice != 'f');
+	FreeThemAll(&Univ, out);
+	fclose(in);
+	fclose(out);
 }
 void CheckStrings(char* s, unsigned int size, char* name)
 {
