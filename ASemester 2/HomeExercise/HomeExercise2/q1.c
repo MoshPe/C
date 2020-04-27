@@ -45,69 +45,52 @@ void main()
 		Error_Msg("The input file is wrong");
 	if (!(out = fopen("OutPut.txt", "w")))
 		Error_Msg("The OutPut file is wrong");
-	printf("*************************************************************************\n");
-	printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
-	printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!:\n>>>: ");
-	rewind(stdin);
-	scanf("%c", &MenuChoice);
-	while (MenuChoice!= 'a' &&MenuChoice!= 'b' &&MenuChoice!= 'c' &&MenuChoice!= 'd' &&MenuChoice!= 'e' &&MenuChoice!= 'f' )
-	{
-		printf("\n invalid input please try again \n>>>: ");
+	do
+	{	
+		printf("*************************************************************************\n");
+		printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
+		printf("!!! Please attention! first time using the program, input must be selected before other options to proceed  !!!:\n>>>: ");
 		rewind(stdin);
 		scanf("%c", &MenuChoice);
-	}
-	do
-	{
-		switch (MenuChoice)
+		if (MenuChoice == 'a' && flag == 0)
 		{
-		case 'a':
 			InputData(&Univ, in);
 			input_HWGrade(&Univ);
 			flag = 1;
-			break;
-		case 'b':
-			if (flag == 0)
-				break;
-			OutPutData(&Univ, out);
-			break;
-		case 'c':
-			if (flag == 0)
-				break;
-			finalGradePrint(&Univ, out);
-			break;
-		case 'd':
-			if (flag == 0)
-				break;
-			Statistics(&Univ, out);
-			break;
-		case 'e':
-			if (flag == 0)
-				break;
-			BlackList(&Univ, out);
-			break;
-		/*case 'f':
-			if (flag == 0)
-				break;
-			FreeThemAll(&Univ, out);
-			break;*/
 		}
-		if (flag == 0)
+		elseif (flag == 1){	
+			switch (MenuChoice)
+			{
+			case 'a':
+				printf("Input data can be execute one per run!!!");
+				break;
+			case 'b':
+				OutPutData(&Univ, out);
+				break;
+			case 'c':
+				finalGradePrint(&Univ, out);
+				break;
+			case 'd':
+				Statistics(&Univ, out);
+				break;
+			case 'e':
+				BlackList(&Univ, out);
+				break;
+			case 'f':
+				FreeThemAll(&Univ, out);
+				fclose(in);
+				fclose(out);
+				break;
+			default:
+				printf("\n invalid input please try again \n>>>: ");
+				rewind(stdin);
+				scanf("%c", &MenuChoice);
+				break;
+			}
+		}
+		else //flag == 0
 			printf("!!!Please select input first in order to proceed  !!!\n");
-		printf("\n*************************************************************************\n");
-		printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
-		rewind(stdin);
-		scanf("%c", &MenuChoice);
-		while (MenuChoice!= 'a' &&MenuChoice!= 'b' &&MenuChoice!= 'c' &&MenuChoice!= 'd' &&MenuChoice!= 'e' &&MenuChoice!= 'f' )
-	{
-		printf("\n invalid input please try again \n>>>: ");
-		rewind(stdin);
-		scanf("%c", &MenuChoice);
-	}
-	} while (flag == 0 || MenuChoice != 'f');
-	FreeThemAll(&Univ, out);
-	fclose(in);
-	fclose(out);
-}
+	} while (MenuChoice != 'f');
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
@@ -117,13 +100,16 @@ void InputData(University* inputUniv, FILE* inputFile)
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade) != EOF)
+	int a;
+	do{
+		a = fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, inputUniv->Stud[i - 1].Grade);
+	while ( a != EOF)
 	{
 		CheckStrings(name, 99, "name");
 		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
 		if (inputUniv->Stud[i - 1].name == NULL)
 		{
-			free(inputUniv->Stud[i - 1].name);
+			free(inputUniv->Stud[i - 1]);
 			Error_Msg("No memory allocated for name");
 		}
 		strcpy(inputUniv->Stud[i - 1].name, name);
