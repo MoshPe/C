@@ -94,7 +94,7 @@ void main()
 		if (flag == 0)
 			printf("!!!Please select input first in order to proceed  !!!\n");
 		printf("\n*************************************************************************\n");
-		printf("Select option: \na - input.file\nb - OutPut.file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit: \n>>>: ");
+		printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
 		rewind(stdin);
 		scanf("%c", &MenuChoice);
 		while (MenuChoice!= 'a' &&MenuChoice!= 'b' &&MenuChoice!= 'c' &&MenuChoice!= 'd' &&MenuChoice!= 'e' &&MenuChoice!= 'f' )
