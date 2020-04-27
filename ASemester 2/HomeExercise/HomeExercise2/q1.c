@@ -20,17 +20,17 @@ typedef struct University
 	int students;
 }University;
 
-void Error_Msg(char* msg);
 void InputData(University* inputUniv, FILE* inputFile);
-void CheckStrings(char* s, unsigned int size, char* name);
 void OutPutData(University* inputUniv, FILE* outputFile);
 void finalGradePrint(University* inputUniv, FILE* outputFile);
-int HWCount(char* binary);
-double finalGradeAvg(float grade, int ExercisesGradeCount);
 void Statistics(University* inputUniv, FILE* outputFile);
 void BlackList(University* inputUniv, FILE* outputFile);
-void input_HWGrade(University* inputUniv);
 void FreeThemAll(University* inputUniv, FILE* outputFile);
+void input_HWGrade(University* inputUniv);
+double finalGradeAvg(float grade, int ExercisesGradeCount);
+void CheckStrings(char* s, unsigned int size, char* name);
+int HWCount(char* binary);
+void Error_Msg(char* msg);
 
 void main()
 {
@@ -147,10 +147,6 @@ void OutPutData(University* inputUniv, FILE* outputFile)
 	for (i = 0; i < inputUniv->students; i++)
 		fprintf(outputFile, "Student %d : %s %ld %.2f %c\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
 }
-int HWCount(char* binary)
-{
-	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
-}
 void finalGradePrint(University* inputUniv, FILE* outputFile)
 {
 	fprintf(outputFile, "\nOption C\n");
@@ -202,11 +198,10 @@ void BlackList(University* inputUniv, FILE* outputFile)
 			}
 	}
 }
-
 void FreeThemAll(University* inputUniv, FILE* outputFile)///////free
 {
-	fprintf(outputFile, "\nOption F\n");
-	fprintf(outputFile, "End Of Program");
+	fprintf(outputFile,"\nOption F\n");
+	fprintf(outputFile,"End Of Program");
 	int i;
 	for (i = 0; i < inputUniv->students; i++)
 		free(inputUniv->Stud[i].name);
@@ -233,11 +228,6 @@ double finalGradeAvg(float grade, int ExercisesGradeCount)
 	}
 	return grade;
 }
-void Error_Msg(char* msg)
-{
-	fprintf(stderr,"\n%s", msg);
-	exit(1);
-}
 void CheckStrings(char* s, unsigned int size, char* name)
 {
 	while (strlen(s) > size)
@@ -245,4 +235,13 @@ void CheckStrings(char* s, unsigned int size, char* name)
 		fprintf(stderr,"\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n", name, name);
 		exit(1);
 	}
+}
+int HWCount(char* binary)
+{
+	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
+}
+void Error_Msg(char* msg)
+{
+	fprintf(stderr,"\n%s", msg);
+	exit(1);
 }
