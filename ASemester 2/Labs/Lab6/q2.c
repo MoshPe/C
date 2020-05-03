@@ -121,7 +121,7 @@ std* Delete_Stud(std* toDel,std* head)
         temp = temp->next;
         //delete toDel node
         if(temp != NULL && temp->next == toDel)
-        }
+        {
         temp -> next = toDel -> next;
         free(toDel->name);
         free(toDel);
@@ -151,9 +151,9 @@ void FreeThemAll(std* head)
 }
 void PrintList(std* head)
 {
-    std* temp = Head;
+    std* temp = head;
     while(temp != NULL){
-		printf("%s %s %s %d %d %d \n ",temp->code,temp->name,temp->Dep,temp->marks[0],temp->marks[1],->temp->marks[2]);
+		printf("%s %s %s %d %d %d \n ",temp->code,temp->name,temp->Dep,temp->marks[0],temp->marks[1],temp->marks[2]);
         temp = temp->next;
 	}
 }

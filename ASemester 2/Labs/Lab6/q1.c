@@ -36,6 +36,7 @@ int main()
         //getting input data from the user
         printf("Enter a new code and name: ");
         scanf("%d%s",&Head->code,Head->name);
+        rewind(stdin);
 	}
 	printf("\n\nThe List is:  ");
 	//printing all the list from last to first
