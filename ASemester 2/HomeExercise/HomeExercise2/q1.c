@@ -32,7 +32,7 @@ void input_HWGrade(University* inputUniv);
 double finalGradeAvg(float grade, char ExercisesGradeCount);
 void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv);
 int HWCount(char* binary);
-void checkGrade(char* grade, University* inputUniv);
+void checkLabGrades(char* grade, University* inputUniv);
 void Error_Msg(char* msg);
 
 void main()
@@ -120,12 +120,25 @@ void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 		exit(1);
 	}
 }
+void checkLabGrades(char* grade, University* inputUniv)
+{
+	if (*grade == '\0')
+		return;
+	else
+	{
+		if (*grade != '1' && *grade != '0')
+		{
+			FreeThemAll(inputUniv);
+			Error_Msg("\ninvalid grades!-the grades is incorect.\nPlease fix the input file and try again!!!\n");
+		}
+	}
+	checkLabGrades(grade + 1, inputUniv);
+}
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
 	char name[MAX];
 	char grade[MAX];
-	//Student* arr;
 	int i = 1;
 	//inputUniv->students = i - 1; //for the free at the end - id,name,grade
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
@@ -134,7 +147,7 @@ void InputData(University* inputUniv, FILE* inputFile)
 	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade,grade) != EOF)
 	{
 		inputUniv->students = i;
-		checkGrade(grade, inputUniv);
+		checkLabGrades(grade, inputUniv);
 		CheckStrings(name, 99, "name", inputUniv);
 		CheckStrings(grade, 5, "Lab Grades", inputUniv);
 		strcpy(inputUniv->Stud[i - 1].name, name);
@@ -146,12 +159,12 @@ void InputData(University* inputUniv, FILE* inputFile)
 			Error_Msg("No memory allocated for name");
 		}
 		strcpy(inputUniv->Stud[i - 1].name, name);
-		//putting is an other array to not lose it while we're tying to reallocing 
 		if (inputUniv->Stud[i - 1].id > 99999 || inputUniv->Stud[i - 1].id < 10000)
 		{
 			FreeThemAll(inputUniv);
 			Error_Msg("\ninvalid id!-the id is incorect.\nPlease fix the input file and try again!!!\n\n");
 		}
+		//Checking the terms for the mtm grade that has to be between 0 to 100
 		if (inputUniv->Stud[i - 1].MtmGrade > 100 || inputUniv->Stud[i - 1].MtmGrade < 0)
 		{
 			FreeThemAll(inputUniv);
@@ -159,12 +172,13 @@ void InputData(University* inputUniv, FILE* inputFile)
 		}
 		//increase number of students
 		i++;
-		Student* Test = inputUniv->Stud; /////////////////////// ask mira
+		//putting is an other array to not lose it while we're tying to reallocing 
+		Student* Test = inputUniv->Stud;
 		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, i * sizeof(Student));
 		if (inputUniv->Stud == NULL)
 		{
 			for (i = i - 1; i >= 0; i--)
-				free(Test[i].name);
+				free(Test[i].name);//free the address that we saved earlier because realloc failed abd inputUniv->Stud == NULL
 			free(Test);
 			Error_Msg("No memory allocated for inputUniv->Stud");
 		}
@@ -260,18 +274,4 @@ void Error_Msg(char* msg)
 {
 	fprintf(stderr, "\n%s", msg);
 	exit(1);
-}
-void checkGrade(char* grade, University* inputUniv)
-{
-	if (*grade == '\0')
-		return;
-	else
-	{
-		if (*grade != '1' && *grade != '0')
-		{
-			FreeThemAll(inputUniv);
-			Error_Msg("\ninvalid grades!-the grades is incorect.\nPlease fix the input file and try again!!!\n");
-		}
-	}
-	checkGrade(grade + 1, inputUniv);
 }
