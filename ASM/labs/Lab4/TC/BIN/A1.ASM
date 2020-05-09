@@ -1,0 +1,45 @@
+.MODEL SMALL
+.STACK 100H
+	.DATA
+		NUM DQ 0
+		ARR DW 60000,1,1,1
+		TEN DD 100H
+		TEN1 DW 10H
+		Print DB 13,10,'Last digit in the sum is: X',13,10,'$'
+	.386
+	.CODE
+		MOV AX,@DATA
+		MOV DS,AX	
+		LEA SI,ARR
+		MOV CX,4
+		JCXZ Skip
+		body:
+			XOR EAX,EAX
+			MOV AX,[SI]
+			MUL EAX
+			ADD DWORD PTR NUM,EAX
+			ADC DWORD PTR NUM +4,EDX	
+			ADD SI,2
+		LOOP body
+		Skip:
+		XOR EAX,EAX
+		MOV EAX, DWORD PTR NUM +1
+		XOR EDX,EDX		
+	;
+		DIV TEN
+		MOV AX,WORD PTR NUM
+		XOR AH,AH
+		ADD AX,DX
+		XOR DX,DX
+		DIV TEN1
+	;
+		ADD DL,'0'
+		MOV Print[28],DL
+	;
+		MOV AH,9
+		MOV DX,OFFSET Print
+		INT 21H
+	;
+		MOV AH,4CH
+		INT 21H
+		END

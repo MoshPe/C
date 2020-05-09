@@ -1,0 +1,100 @@
+.MODEL SMALL
+.STACK 100h
+.DATA
+	source DB 12 DUP (0)
+	EnterNum DB 13,10,'Enter number N for sqrt(up to 12 digits):',13,10,'$'
+	PrintSqrt DB 13,10'Sqrt(XXXXXXXXXXXX','$' 
+	Nsize EQU 12
+	result DB ') = XXXXXXX',13,10,'$' 
+	C DD ?
+	P DD 0
+	X DD ?
+	Y DD ?
+	REM DD 0
+	M DD ?
+	SPOS DW 0
+	RPOS DW 0
+	TEN DB 10
+
+
+
+.CODE
+.386
+	MOV AX,@DATA
+	MOV DS,AX
+	MOV ES,AX
+	MOV AH,9
+	MOV DX,OFFSET source
+	INT 21H
+	MOV DX,OFFSET source
+	MOV CX,Nsize
+	MOV AH,3FH
+	MOV BX,0
+	INT 21H
+	TEST AL,1
+	JZ EVEN
+		MOV CX,AX
+		LEA SI,source
+		ADD SI,AX
+		BODY:
+		MOV BL,[SI]
+		MOV [SI+1],BL
+		DEC SI
+	LOOP BODY
+	MOV [SI],'0'
+	XOR EAX,EAX
+	EVEN:
+	CMP source[SPOS],0
+	JE PrintSolution
+	MOV AL,source[SPOS]
+	MUL TEN
+	ADD AL,source[SPOS+1]
+	MOV M,EAX
+	MOV EAX,100
+	MUL REM
+	MOV C,EAX
+	ADD C,M
+	MOV X,0
+	MOV Y,0
+	While:
+	CMP Y,C
+	JAE AfterWhile
+		INC X
+		MOV EAX,20
+		MUL P
+		MOV P,EAX
+		ADD P,X
+		MOV EAX,P
+		MUL X
+		MOV Y,EAX
+	JMP While
+	AfterWhile:
+	CMP Y,C
+	JB SmallerThanC
+		DEC X
+		MOV EAX,20
+		MUL P
+		MOV P,EAX
+		ADD P,X
+		MOV EAX,P 
+		MUL X 
+		MOV Y,EAX
+	SmallerThanC:
+	ADD X,'0'
+	MOV result[RPOS],BYTE PTR X 
+	ADD SPOS,2
+	INC RPOS
+	SUB C,Y
+	MOV REM,C 
+	MOV EAX,10
+	MUL P 
+	ADD EAX,X 
+	MOV P,EAX
+;
+	JMP EVEN
+	PrintSolution:
+	MOV AH,9
+;
+	MOV AH,4CH
+	INT 21H
+	END

@@ -1,35 +1,37 @@
-#define _CRT_SECURE_NO_WARNINGS
+#include <windows.h>
+#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <conio.h>
-#include<math.h>
-
+double piForinfinity(double n);
 void main()
 {
-	int i;
-	float arr[4]={99.80,77.89,50.34,49.78};
-	float avg;
-	float hey;
-	float sd = 0;//Standard Deviation
-	float max = arr[0];
-	float min = arr[0];
-	for (i = 0; i < 4; i++)
-	{
-		avg += arr[i];
-		if (arr[i]>max)
-			max = arr[i];
-			if (arr[i]<min)
-			min = arr[i];	
-	}
-	avg = avg/4;
-	for (i = 0; i < 4; i++)
-	{
-		hey = (arr[i] - avg);
-		printf("\n%.2f\n",hey);
-		sd= sd + pow(hey,2.0);
-		printf("\n%.2f\n",sd);
-	}
-	printf(" the avg is %f the max is %.2f min %.2f sd %f",avg,max,min,sqrt(sd/4.0));
-}
+ double n = 1;
+ long double sum = 0;
+ long long i;
+ char max[20000];
+ //printf("%.50lf\n",4* piForinfinity(n));
+ /*for (i = 0; i < 99999; i++)
 
+	{
+
+		sum = sum+ (pow((-1), n + 1) / (2 * n - 1));
+
+		n++;
+
+	}
+
+	sum = sum * 4;
+
+	//printf("%.50Lf\n", sum);*/
+ _gcvt(M_PI, 20000, max);
+ for (i = 0; i < 70; i++)
+ {
+  Sleep(500);
+  putchar(max[i]);
+ }
+}
+double piForinfinity(double n)
+{
+ if (n == 999)
+  return (pow((-1), n + 1) / (2 * n - 1));
+ return (pow((-1), n + 1) / (2 * n - 1)) + piForinfinity(n + 1);
+}

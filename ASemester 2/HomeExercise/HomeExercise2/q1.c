@@ -61,7 +61,8 @@ void main()
 			input_HWGrade(&Univ);
 			flag = 1;
 		}
-		else if (flag == 1 || MenuChoice == 'f') {
+		else if (flag == 1 || MenuChoice == 'f')
+		{
 			switch (MenuChoice)
 			{
 			case 'a':
@@ -90,7 +91,7 @@ void main()
 			case 'f':
 				fprintf(out, "\nOption F\n");
 				fprintf(out, "End Of Program");
-				if(flag ==1)
+				if (flag == 1)
 				{
 					FreeThemAll(&Univ);
 					fclose(in);
@@ -108,9 +109,15 @@ void main()
 			}
 		}
 		else //flag == 0
-			printf("!!!  Invalid input(first use choose option a first otherwise try again)  !!!\n");
+			printf("\n!!!  Invalid input(in first use, choose option a first, otherwise try again)  !!!\n");
 	} while (MenuChoice != 'f');
 }
+/*
+Function name: CheckStrings
+Input: A string, the size required,the name of the string, the University to free before exit(1)
+Algoritem: It checks the length of the string by strlen() function, if it is above the required length
+		   the function pulls out a message and terminate the program
+*/
 void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 {
 	while (strlen(s) > size)
@@ -120,6 +127,13 @@ void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 		exit(1);
 	}
 }
+/*
+Function name: checkLabGrades
+Input: A string and the University to free before exit(1)
+Algoritem: In a recursive way it checks if all the string is assembled 
+			by '1' and '0' and not other chars, if it not the function
+		   it pulls out a message and terminate the program
+*/
 void checkLabGrades(char* grade, University* inputUniv)
 {
 	if (*grade == '\0')
@@ -134,23 +148,26 @@ void checkLabGrades(char* grade, University* inputUniv)
 	}
 	checkLabGrades(grade + 1, inputUniv);
 }
+/*
+Function name: InputData
+Input: Getting the University pointer and the input file
+Output: Creates an array of students inside the struct inputUniv
+*/
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
 	char name[MAX];
 	char grade[MAX];
 	int i = 1;
-	//inputUniv->students = i - 1; //for the free at the end - id,name,grade
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade,grade) != EOF)
+	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, grade) != EOF)
 	{
-		inputUniv->students = i;
+		inputUniv->students = i;//////////////
 		checkLabGrades(grade, inputUniv);
 		CheckStrings(name, 99, "name", inputUniv);
 		CheckStrings(grade, 5, "Lab Grades", inputUniv);
-		strcpy(inputUniv->Stud[i - 1].name, name);
 		strcpy(inputUniv->Stud[i - 1].Grade, grade);
 		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
 		if (inputUniv->Stud[i - 1].name == NULL)
@@ -158,7 +175,9 @@ void InputData(University* inputUniv, FILE* inputFile)
 			free(inputUniv->Stud);
 			Error_Msg("No memory allocated for name");
 		}
+		/////inputUniv->students = i;
 		strcpy(inputUniv->Stud[i - 1].name, name);
+		//Checking the terms for the id that has to be between 10000 to 99999
 		if (inputUniv->Stud[i - 1].id > 99999 || inputUniv->Stud[i - 1].id < 10000)
 		{
 			FreeThemAll(inputUniv);
@@ -172,18 +191,25 @@ void InputData(University* inputUniv, FILE* inputFile)
 		}
 		//increase number of students
 		i++;
-		//putting is an other array to not lose it while we're tying to reallocing 
+		//putting is an other array to not lose it while we're tying to reallocing so we can free
 		Student* Test = inputUniv->Stud;
 		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, i * sizeof(Student));
 		if (inputUniv->Stud == NULL)
 		{
 			for (i = i - 1; i >= 0; i--)
-				free(Test[i].name);//free the address that we saved earlier because realloc failed abd inputUniv->Stud == NULL
+			//free the address that we saved earlier because realloc failed abd inputUniv->Stud == NULL
+				free(Test[i].name);
 			free(Test);
 			Error_Msg("No memory allocated for inputUniv->Stud");
 		}
 	}
 }
+/*
+Function name: input_HWGrade
+Input: Getting the University array
+Output: it puts '1' or '0' in every student final grade
+Algoritem: 
+*/
 void input_HWGrade(University* inputUniv)
 {
 	int i, gradeCount;
@@ -193,37 +219,50 @@ void input_HWGrade(University* inputUniv)
 		inputUniv->Stud[i].HWfinalGrade = (gradeCount >= 3) ? '1' : '0';
 	}
 }
+//prints out the data to the output file
 void OutPutData(University* inputUniv, FILE* outputFile)
 {
 	int i;
 	for (i = 0; i < inputUniv->students; i++)
 		fprintf(outputFile, "Student %d : %s %ld %.2f %c\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
 }
-double finalGradeAvg(float grade, char ExercisesGradeCount)
+/*
+Function name: finalGradeAvg
+Input: Getting the MtmGrade and the HW final grade
+Output: it returns the finalGrade avg of mtm grade and hw grade
+Algoritem: 
+*/
+double finalGradeAvg(float mtmGrade, char ExercisesGradeCount)
 {
-	if (grade > 55.0)
+	if (mtmGrade > 55.0)
 	{
 		double gradeFinal;
 		double ExercisesFinal;
-		gradeFinal = grade * 0.85;
+		gradeFinal = mtmGrade * 0.85;
 		ExercisesFinal = ((ExercisesGradeCount - '0') * 15.0);
 		return ExercisesFinal + gradeFinal;
 	}
-	return grade;
+	return mtmGrade;
 }
 void finalGradePrint(University* inputUniv, FILE* outputFile)
 {
 	fprintf(outputFile, "BEFORE\n");
-	OutPutData(inputUniv,outputFile);
+	OutPutData(inputUniv, outputFile);
 	fprintf(outputFile, "\nAFTER\n");
 	int i;
 	float FinalAvg;
 	for (i = 0; i < inputUniv->students; i++)
 	{
-		FinalAvg = finalGradeAvg(inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
+		FinalAvg = (float)finalGradeAvg(inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
 		fprintf(outputFile, "Student %d : %s %ld %.2f %c final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade, FinalAvg);
 	}
 }
+/*
+Function name: input_HWGrade
+Input: Getting the University array
+Output: it puts '1' or '0' in every student final grade
+Algoritem: 
+*/
 void Statistics(University* inputUniv, FILE* outputFile)
 {
 	int i;
