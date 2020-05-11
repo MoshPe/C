@@ -149,11 +149,10 @@ void MoveToAnotherList(List* L, List* Posit, List* Negat)
 		temp = L->head;
 		L->head = temp->next;
 		L->count--;
-		if (temp->num > 0)
+		if (temp->num >= 0)
 			AddAsLast(temp, Posit);
 		else
 			AddAsLast(temp, Negat);
-		
 	}
 	L->tail= L->head;
 }
