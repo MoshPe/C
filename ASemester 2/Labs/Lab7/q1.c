@@ -104,13 +104,19 @@ void PrintList(List* L, char* title)
 	}
 	printf("\nThere are %d items in the list", L->count);
 }
+//Addint a node to the head of the list every time
 void AddAsFirst(Item* A, List* L)
 {
-	A->next = L->head;
-	L->head = A;
-	if (L->count == 0)
-		L->tail = A;
-	L->count++;
+	if (L->head == NULL)
+		L->head = A;
+	else
+	{
+		A->next = L->head;
+		L->head = A;
+		if (L->count == 0)
+			L->tail = A;
+		L->count++;
+	}
 }
 void AddAsLast(Item* A, List* L)
 {
@@ -149,4 +155,5 @@ void MoveToAnotherList(List* L, List* Posit, List* Negat)
 			AddAsLast(temp, Negat);
 		
 	}
+	L->tail= L->head;
 }

@@ -59,8 +59,6 @@ void CreateListFromArray(PItem* head,PItem* tail,int *Arr)
 		*tail=temp;
 	}
 }
-
-
 void DeleteList(PItem *head)
 {
 	PItem tmp=*head;
@@ -71,14 +69,19 @@ void DeleteList(PItem *head)
 		free(tmp);
 	}
 }
+//counts the amount of nodes that there are in the list
 int ListLength(PItem L)
 {
 	return (L->next == NULL)?1:1 + ListLength(L->next);
 }
+//prints every node in the list
 void ListDisplay(PItem L)
 {
-	if (L == NULL)
-	return;
+	if (L->next == NULL)
+	{
+		printf("%d",L->num);
+		return;
+	}
 	printf("%d --> ",L->num);
 	ListDisplay(L->next);
 }
