@@ -26,7 +26,7 @@ void InputData(University* inputUniv, FILE* inputFile);
 void OutPutData(University* inputUniv, FILE* outputFile);
 void finalGradePrint(University* inputUniv, FILE* outputFile);
 void Statistics(University* inputUniv, FILE* outputFile);
-void BlackList(University* inputUniv, FILE* outputFile);
+void Blackldst(University* inputUniv, FILE* outputFile);
 void FreeThemAll(University* inputUniv);
 void input_HWGrade(University* inputUniv);
 double finalGradeAvg(float grade, char ExercisesGradeCount);
@@ -38,6 +38,8 @@ void Error_Msg(char* msg);
 void main()
 {
 	int flag = 0;
+	int secondTry = 1;
+	int Finish = 0;
 	char MenuChoice;
 	FILE* in;
 	FILE* out;
@@ -48,13 +50,19 @@ void main()
 		Error_Msg("The OutPut file is wrong");
 	do
 	{
-		printf("\n*************************************************************************\n");
-		printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black List\nf - Exit \n");
-		if (flag == 0)
-			printf("!!! Please pay attention! first time using the program, option a must be selected before other options to proceed  !!!\n");
-		printf(">>>: ");
-		rewind(stdin);
-		scanf("%c", &MenuChoice);
+		if (secondTry == 1)
+		{
+			printf("\n*************************************************************************\n");
+			printf("Select option: \na - Extract data from input file\nb - OutPut data to output file\nc - finalGradeCalc\nd - Stastistics.file\ne - Black ldst\nf - Exit \n");
+			if (flag == 0)
+				printf("!!! Please pay attention! first time using the program, option a must be selected before other options to proceed  !!!\n");
+			printf(">>>: ");
+			rewind(stdin);
+			scanf("%c", &MenuChoice);
+		}
+		else
+			secondTry = 1;
+		//checking if the option is == 'a'
 		if (MenuChoice == 'a' && flag == 0)
 		{
 			InputData(&Univ, in);
@@ -85,32 +93,32 @@ void main()
 				break;
 			case 'e':
 				fprintf(out, "\nOption E\n");
-				fprintf(out, "BlackList\n\n");
-				BlackList(&Univ, out);
+				fprintf(out, "Blackldst\n\n");
+				Blackldst(&Univ, out);
 				break;
 			case 'f':
 				fprintf(out, "\nOption F\n");
 				fprintf(out, "End Of Program");
 				if (flag == 1)
-				{
 					FreeThemAll(&Univ);
-					fclose(in);
-					fclose(out);
-				}
+				fclose(in);
+				fclose(out);
+				Finish = 1;
 				break;
 			default:
 				while (MenuChoice != 'a' && MenuChoice != 'b' && MenuChoice != 'c' && MenuChoice != 'd' && MenuChoice != 'e' && MenuChoice != 'f')
 				{
-					printf("\n Invalid input, Please try again!!! \n>>>: ");
+					printf("\n Invaldd input, Please try again!!! \n>>>: ");
 					rewind(stdin);
-					scanf("%c", &MenuChoice);
+					scanf("%c",&MenuChoice);
+					secondTry = 0;
 				}
 				break;
 			}
 		}
 		else //flag == 0
-			printf("\n!!!  Invalid input(in first use, choose option a first, otherwise try again)  !!!\n");
-	} while (MenuChoice != 'f');
+			printf("\n!!!  Invaldd input(in first use, choose option a first, otherwise try again)  !!!\n");
+	} while (Finish != 1);
 }
 /*
 Function name: CheckStrings
@@ -122,7 +130,7 @@ void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 {
 	while (strlen(s) > size)
 	{
-		fprintf(stderr, "\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n\n", name, name);
+		fprintf(stderr, "\ninvaldd %s!-the %s is too long.\nPlease fix the input file and try again!!!\n\n", name, name);
 		FreeThemAll(inputUniv);
 		exit(1);
 	}
@@ -130,8 +138,8 @@ void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 /*
 Function name: checkLabGrades
 Input: A string and the University to free before exit(1)
-Algoritem: In a recursive way it checks if all the string is assembled 
-			by '1' and '0' and not other chars, if it not the function
+Algoritem: In a recursive way it checks if all the string is assembled
+		   by '1' and '0' and not other chars, if it not the function
 		   it pulls out a message and terminate the program
 */
 void checkLabGrades(char* grade, University* inputUniv)
@@ -143,7 +151,7 @@ void checkLabGrades(char* grade, University* inputUniv)
 		if (*grade != '1' && *grade != '0')
 		{
 			FreeThemAll(inputUniv);
-			Error_Msg("\ninvalid grades!-the grades is incorect.\nPlease fix the input file and try again!!!\n");
+			Error_Msg("\ninvaldd grades!-the grades is incorect.\nPlease fix the input file and try again!!!\n");
 		}
 	}
 	checkLabGrades(grade + 1, inputUniv);
@@ -151,64 +159,68 @@ void checkLabGrades(char* grade, University* inputUniv)
 /*
 Function name: InputData
 Input: Getting the University pointer and the input file
-Output: Creates an array of students inside the struct inputUniv
+Output: Creates an array of students inside the struct inputUniv with all the data that
+		the function inputs
 */
 void InputData(University* inputUniv, FILE* inputFile)
 {
 	int gradeCount = 0;
 	char name[MAX];
 	char grade[MAX];
-	int i = 1;
+	int i = 0;
 	inputUniv->Stud = (Student*)malloc(sizeof(Student));
 	if (inputUniv->Stud == NULL)
 		Error_Msg("No memory allocated for arr");
-	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i - 1].id, &inputUniv->Stud[i - 1].MtmGrade, grade) != EOF)
+	while (fscanf(inputFile, "%s%ld%f%s", name, &inputUniv->Stud[i].id, &inputUniv->Stud[i].MtmGrade, grade) != EOF)
 	{
-		inputUniv->students = i;//////////////
+		inputUniv->students = i;
+		//checking if there are '1' and '0' in the lab grades array
 		checkLabGrades(grade, inputUniv);
+		//cheking if the name string length is the correct length
 		CheckStrings(name, 99, "name", inputUniv);
+		//cheking if the lab grades string length is the correct length
 		CheckStrings(grade, 5, "Lab Grades", inputUniv);
-		strcpy(inputUniv->Stud[i - 1].Grade, grade);
-		inputUniv->Stud[i - 1].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
-		if (inputUniv->Stud[i - 1].name == NULL)
+		strcpy(inputUniv->Stud[i].Grade, grade);
+		inputUniv->Stud[i].name = (char*)malloc((strlen(name) + 1) * sizeof(char));
+		if (inputUniv->Stud[i].name == NULL)
 		{
-			free(inputUniv->Stud);
+			FreeThemAll(inputUniv);
 			Error_Msg("No memory allocated for name");
 		}
-		/////inputUniv->students = i;
-		strcpy(inputUniv->Stud[i - 1].name, name);
+		strcpy(inputUniv->Stud[i].name, name);
 		//Checking the terms for the id that has to be between 10000 to 99999
-		if (inputUniv->Stud[i - 1].id > 99999 || inputUniv->Stud[i - 1].id < 10000)
+		if (inputUniv->Stud[i].id > 99999 || inputUniv->Stud[i].id < 10000)
 		{
 			FreeThemAll(inputUniv);
-			Error_Msg("\ninvalid id!-the id is incorect.\nPlease fix the input file and try again!!!\n\n");
+			Error_Msg("\ninvaldd id!-the id is incorect.\nPlease fix the input file and try again!!!\n\n");
 		}
 		//Checking the terms for the mtm grade that has to be between 0 to 100
-		if (inputUniv->Stud[i - 1].MtmGrade > 100 || inputUniv->Stud[i - 1].MtmGrade < 0)
+		if (inputUniv->Stud[i].MtmGrade > 100 || inputUniv->Stud[i].MtmGrade < 0)
 		{
 			FreeThemAll(inputUniv);
-			Error_Msg("\ninvalid Mtm Grade!-the Mtm Grade is incorect.\nPlease fix the input file and try again!!!\n\n");
+			Error_Msg("\ninvaldd Mtm Grade!-the Mtm Grade is incorect.\nPlease fix the input file and try again!!!\n\n");
 		}
 		//increase number of students
 		i++;
 		//putting is an other array to not lose it while we're tying to reallocing so we can free
 		Student* Test = inputUniv->Stud;
-		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, i * sizeof(Student));
+		inputUniv->Stud = (Student*)realloc(inputUniv->Stud, (i+1) * sizeof(Student));
 		if (inputUniv->Stud == NULL)
 		{
-			for (i = i - 1; i >= 0; i--)
-			//free the address that we saved earlier because realloc failed abd inputUniv->Stud == NULL
+			for (i = i-1; i >= 0; i--)
+				//free the address that we saved earlder because realloc failed abd inputUniv->Stud == NULL
 				free(Test[i].name);
 			free(Test);
 			Error_Msg("No memory allocated for inputUniv->Stud");
 		}
 	}
+	inputUniv->students++;
 }
 /*
 Function name: input_HWGrade
 Input: Getting the University array
 Output: it puts '1' or '0' in every student final grade
-Algoritem: 
+Algoritem: the function counts the amount number of '1' in the labGrade string
 */
 void input_HWGrade(University* inputUniv)
 {
@@ -230,7 +242,8 @@ void OutPutData(University* inputUniv, FILE* outputFile)
 Function name: finalGradeAvg
 Input: Getting the MtmGrade and the HW final grade
 Output: it returns the finalGrade avg of mtm grade and hw grade
-Algoritem: 
+Algoritem: the function checks if the student passed the exam>55
+		   if he did it calculates the final grade
 */
 double finalGradeAvg(float mtmGrade, char ExercisesGradeCount)
 {
@@ -244,24 +257,30 @@ double finalGradeAvg(float mtmGrade, char ExercisesGradeCount)
 	}
 	return mtmGrade;
 }
+/*
+the function prints out the data to the output file before adding the final grade and after
+	getting the final grade
+*/
 void finalGradePrint(University* inputUniv, FILE* outputFile)
 {
 	fprintf(outputFile, "BEFORE\n");
 	OutPutData(inputUniv, outputFile);
 	fprintf(outputFile, "\nAFTER\n");
 	int i;
-	float FinalAvg;
+	float finalGrade;
 	for (i = 0; i < inputUniv->students; i++)
 	{
-		FinalAvg = (float)finalGradeAvg(inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
-		fprintf(outputFile, "Student %d : %s %ld %.2f %c final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade, FinalAvg);
+		finalGrade = (float)finalGradeAvg(inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade);
+		fprintf(outputFile, "Student %d : %s %ld %.2f %c final: %.2f\n", i + 1, inputUniv->Stud[i].name, inputUniv->Stud[i].id, inputUniv->Stud[i].MtmGrade, inputUniv->Stud[i].HWfinalGrade, finalGrade);
 	}
 }
 /*
-Function name: input_HWGrade
-Input: Getting the University array
-Output: it puts '1' or '0' in every student final grade
-Algoritem: 
+Function name: Statistics
+Input: Getting the University pointer and the output file
+Output: prints out to the data file the statistics of the students
+Algoritem: the function calculates the avg grade,the standard deviation,
+		   the amount of students and the range of the students grades from max
+		   grade to min grade by given formulas
 */
 void Statistics(University* inputUniv, FILE* outputFile)
 {
@@ -286,11 +305,13 @@ void Statistics(University* inputUniv, FILE* outputFile)
 	fprintf(outputFile, "The Amount of students is: %d\n", inputUniv->students);
 	fprintf(outputFile, "The range is %.2f - %.2f\n", max, min);
 }
-void BlackList(University* inputUniv, FILE* outputFile)
+//prints out to the output file the students id and name whi got '0' in their final hw grade
+void Blackldst(University* inputUniv, FILE* outputFile)
 {
 	int i, j;
 	for (i = 0, j = 1; i < inputUniv->students; i++)
 	{
+		//checks if the final hw grade == '0'
 		if (inputUniv->Stud[i].HWfinalGrade == '0')
 		{
 			fprintf(outputFile, "Student %d: %s %ld\n", j, inputUniv->Stud[i].name, inputUniv->Stud[i].id);
@@ -298,17 +319,20 @@ void BlackList(University* inputUniv, FILE* outputFile)
 		}
 	}
 }
-void FreeThemAll(University* inputUniv)///////free
+//free all the allocations
+void FreeThemAll(University* inputUniv)
 {
 	int i;
 	for (i = 0; i < inputUniv->students; i++)
 		free(inputUniv->Stud[i].name);
 	free(inputUniv->Stud);
 }
+//the function returns the amounts of '1' in the string
 int HWCount(char* binary)
 {
 	return (*binary == '\0') ? 0 : (*binary == '1') ? 1 + HWCount(binary + 1) : HWCount(binary + 1);
 }
+//prints an error message and terminate the program
 void Error_Msg(char* msg)
 {
 	fprintf(stderr, "\n%s", msg);

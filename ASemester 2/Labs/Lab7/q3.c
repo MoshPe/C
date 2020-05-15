@@ -31,7 +31,17 @@ int main()
 	scanf("%d%f", &a, &b);
 	printf("\nEnter a place for the new item:");
 	scanf("%d", &n);
-	AddNewItem(&head, &tail, n, a, b);
+	do
+	{
+		if(n<1)
+		{
+			printf("\nplace for the new item is wrong,please try again:\n");
+			scanf("%d", &n);
+		}
+		if (n>=1)
+			AddNewItem(&head, &tail, n, a, b);
+	}
+	while (n < 1);
 	PrintList(head, "\nThe New List:\n");
 	fclose(in);
 	WriteListToFile(head, in);
@@ -109,6 +119,7 @@ void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 	PItem ptrTail = *tail;
 	int count = 1;
 	int flag = 0;
+	int m;
 	temp = (PItem)malloc(sizeof(struct Item));
 	if (temp == NULL)
 	{
@@ -122,6 +133,7 @@ void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 		temp->next = *head;
 		*head = temp;
 		*tail = temp;
+		flag = 1;
 	}
 	while (ptr != ptrTail && count != n)
 	{
@@ -134,13 +146,20 @@ void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 		}
 		ptr = ptr->next;
 	}
-	if (flag == 0 && n != 1)
+	if (flag == 0 && n != 1 && count+1 == n)
 	{
 		temp->next = ptrTail->next;
 		ptrTail->next = temp;
 		ptrTail = temp;
+		flag = 1;
 	}
-
+	else if (flag == 0)
+	{
+		printf("invalid place, please try again:\n");
+		scanf("%d", &m);
+		AddNewItem(head, tail, m, a, b);
+	}
+	return;
 }
 void WriteListToFile(PItem head, FILE* in)
 {
