@@ -2,6 +2,7 @@
 #define _Stack_Header_Array
 
 #include <stdio.h>
+
 typedef struct Stack {
 	int top;         //index of the last member in array of a stack;
 	int* Array;   //pointer to array of members of a stack

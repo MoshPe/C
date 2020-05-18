@@ -128,7 +128,7 @@ Algoritem: It checks the length of the string by strlen() function, if it is abo
 */
 void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)
 {
-	while (strlen(s) > size)
+	if (strlen(s) > size)
 	{
 		fprintf(stderr, "\ninvaldd %s!-the %s is too long.\nPlease fix the input file and try again!!!\n\n", name, name);
 		FreeThemAll(inputUniv);

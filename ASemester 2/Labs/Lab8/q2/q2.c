@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "hello.h"
+#include "Stack_Header_Array.h"
 
 int main()
 {
@@ -36,6 +36,6 @@ int main()
 	flag = Pop(&st, &del_value);
 	if (flag)
 		printf("\n%d was deleted", del_value);
-	free(st.Array);
+	free(st.Array);//free the array in the stack
 	return 0;
 }
