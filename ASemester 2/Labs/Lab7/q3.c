@@ -38,7 +38,7 @@ int main()
 			printf("\nplace for the new item is wrong,please try again:\n");
 			scanf("%d", &n);
 		}
-		if (n>=1)
+		else if (n>=1)
 			AddNewItem(&head, &tail, n, a, b);
 	}
 	while (n < 1);
@@ -115,11 +115,11 @@ void DeleteList(PItem* head)
 void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 {
 	PItem temp;
-	PItem ptr = *head;
+	PItem ptrHead = *head;
 	PItem ptrTail = *tail;
 	int count = 1;
 	int flag = 0;
-	int m;
+	int secondTry;
 	temp = (PItem)malloc(sizeof(struct Item));
 	if (temp == NULL)
 	{
@@ -132,19 +132,20 @@ void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 	{
 		temp->next = *head;
 		*head = temp;
-		*tail = temp;
+		if(*tail == null)
+			*tail = temp;
 		flag = 1;
 	}
-	while (ptr != ptrTail && count != n)
+	while (ptrHead != ptrTail && count != n)
 	{
 		count++;
 		if (count == n)
 		{
-			temp->next = ptr->next;
-			ptr->next = temp;
+			temp->next = ptrHead->next;
+			ptrHead->next = temp;
 			flag = 1;
 		}
-		ptr = ptr->next;
+		ptrHead = ptrHead->next;
 	}
 	if (flag == 0 && n != 1 && count+1 == n)
 	{
@@ -156,8 +157,8 @@ void AddNewItem(PItem* head, PItem* tail, int n, int a, float b)
 	else if (flag == 0)
 	{
 		printf("invalid place, please try again:\n");
-		scanf("%d", &m);
-		AddNewItem(head, tail, m, a, b);
+		scanf("%d", &secondTry);
+		AddNewItem(head, tail, secondTry, a, b);
 	}
 	return;
 }
