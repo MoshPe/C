@@ -1,0 +1,2 @@
+TASM.EXE /zi Q1.ASM
+TLINK.EXE /3/v Q1.OBJ
