@@ -1,6 +1,4 @@
 #include "Stack_Header_Array.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 void Error_Msg(char* msg)
 {

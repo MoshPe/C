@@ -1,7 +1,10 @@
 #ifndef _Stack_Header_Array
 #define _Stack_Header_Array
 
-#include <stdio.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+#include<stdio.h>
+#include <stdlib.h>
 
 typedef struct Stack {
 	int top;         //index of the last member in array of a stack;

@@ -1,5 +1,5 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include "Stack_Header_Array.h"
+#include"Stack_Header_Array.h"
+
 
 int main()
 {

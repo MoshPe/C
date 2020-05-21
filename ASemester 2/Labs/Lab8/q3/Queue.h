@@ -1,6 +1,10 @@
 #ifndef _StackQueue
 #define _StackQueue
 
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+
 #define NUM 5
 
 typedef struct Item {

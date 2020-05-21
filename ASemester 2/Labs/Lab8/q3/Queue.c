@@ -1,5 +1,5 @@
 #include"Queue.h"
-#include<stdio.h>
+
 void Error_Msg(char* msg)
 {
 	printf("\n%s", msg);

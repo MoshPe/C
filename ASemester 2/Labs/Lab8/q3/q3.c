@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "Queue.h"
 
 void main()
@@ -27,5 +26,4 @@ void main()
 			printf("\nAn element has NOT been removed\n");
 	}
 	puts("\n");
-	DeleteList(&Test);
 }

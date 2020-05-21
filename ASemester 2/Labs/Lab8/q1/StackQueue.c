@@ -1,5 +1,6 @@
 #include"StackQueue.h"
 #include<stdio.h>
+#include<stdlib.h>
 void Error_Msg(char* msg)
 {
 	printf("\n%s", msg);
@@ -28,18 +29,6 @@ void Push(PStack s, int   new_elem)
      }
      else
         printf("\n\nThe stack is full\n\n");
-}
-//deletes the entire list(free them All)
-void DeleteList(PStack s)
-{
-	Item* temp;
-	while (s->head != NULL)
-	{
-		temp = s->head;
-		s->head = s->head->next;
-		free(temp);
-	}
-	s->size = 0;
 }
 /*
 Function name: Pop

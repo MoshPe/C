@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include "StackQueue.h"
 
@@ -27,5 +28,4 @@ void main()
 			printf("\nAn element has NOT been removed\n");
 	}
 	puts("\n");
-	DeleteList(&Test);
 }
