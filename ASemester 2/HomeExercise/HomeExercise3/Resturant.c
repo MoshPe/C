@@ -283,7 +283,7 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 		free(deleteTable->productName);
 		deleteTable = deleteTable->next;
 	}
-	steakHouse->tables[tableIndex - 1].dishes.head = deleteTable;
+	steakHouse->tables[tableIndex - 1].dishes.head = NULL;
     return TRUE;
 }
 //checking if the product exist in the kitchen menu 

@@ -1,31 +1,37 @@
-#include<stdio.h>
-#include<math.h>
-
-
-
-int* sortedSquares(int* A, int ASize, int* returnSize);
+#include <stdio.h>
+#include <Windows.h>
 void main()
 {
-    int*A = {-4,-1,0,3,10};
-    int*hi;
-    int i;
-    hi = sortedSquares(A,5,hi);
-    for (i = 0; i < 5; i++)
-        printf("%d,",hi[i]);
-    
-}
-int* sortedSquares(int* A, int ASize, int* returnSize)
-{
-    int i;
-    int* afterit;
-    afterit = (int*)malloc(ASize*sizeof(int));
-    assert(returnSize);
-for(i=0;i<ASize-1;i++)
-{
-    if(abs(A[ASize-i-1])>abs(A[i]))
-        afterit[ASize-i-1] = pow(A[ASize-i-1],2);
-    else
-        afterit[i] = pow(A[i],2);       
-}
-    return afterit;
-}
+	int i, j, k;
+	char ch1, acode;
+	char code_array[256];
+
+	char msg[80] = "Hello World!";
+	char encoded_msg[80], decoded_msg[80];
+
+	k = 4;
+	for (i = 0; i < 256; i++)
+	{
+		ch1 = i;
+		acode = 'z';
+		if ((i >= 'a') && (i <= 'z'))
+		{
+			ch1 = ch1 + k;
+			if (ch1 > acode)
+				ch1 = 'a' + (ch1 % acode);
+		} // if
+
+		acode = 'Z';
+		if ((i >= 'A') && (i <= 'Z'))
+		{
+			ch1 = ch1 + k;
+			if (ch1 > acode)
+				ch1 = 'A' + (ch1 % acode) - 1;
+		} // if
+
+		code_array[i] = ch1;
+        Sleep(500);
+        printf("%c  , ",code_array[i]);
+
+	} //for 
+} // main

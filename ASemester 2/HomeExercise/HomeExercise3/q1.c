@@ -18,17 +18,23 @@ void main()
 		Error_Msg("\nThe Instructions file is wrong");
 	//getting the tables amount
 	fscanf(instruction, "%d", &steakHouse.amountOfTables);
-	if (steakHouse.amountOfTables < 0)
-		Error_Msg("\nThe table amount inside instruction file is incorrect");
-	//creating an array of tables with the given tables amount
-	steakHouse.tables = (PTable)malloc(steakHouse.amountOfTables * sizeof(Table));
-	if (steakHouse.tables == NULL)
-    {
-        fclose(instruction);
-	    fclose(outputFile);
-	    fclose(dishes);
-        Error_Msg("Couldn't allocat memory for tables");
-    }
+	if (steakHouse.amountOfTables > 0)
+	{
+		//creating an array of tables with the given tables amount
+		steakHouse.tables = (PTable)malloc(steakHouse.amountOfTables * sizeof(Table));
+		if (steakHouse.tables == NULL)
+		{
+			fclose(instruction);
+			fclose(outputFile);
+			fclose(dishes);
+			Error_Msg("Couldn't allocat memory for tables");
+		}
+	}
+	else
+	{
+		fprintf(outputFile,"\nThe table amount inside instruction file is incorrect");
+		error_input = 1;
+	}
 	//reseting all the tables checkoutputFilePrice and list
 	tableReset(&steakHouse);
 	//gettint the first instraction
@@ -46,6 +52,9 @@ void main()
 		{
 			switch (instruction_guide)
 			{
+			case 1:
+				fprintf(outputFile,"Extracting data to the kitchen is aviable to do only once!!!");
+				break;
 			case 2:
 				fscanf(instruction, "%s %d", productName, &productAmount);
 				addItems(productName, productAmount, outputFile, &steakHouse.mainKitchen);
@@ -53,7 +62,7 @@ void main()
 			case 3:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
 				if(orderItems(productName, tableIndex, productAmount, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-                    error_input =1;
+                    error_input = 1;
 				break;
 			case 4:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
@@ -66,14 +75,14 @@ void main()
 				break;
 
 			default:
-				fprintf(outputFile, "Wrong option, please fix the file!!!");
-				FreeThemAll(&steakHouse);
-				error_input = 1;
+				fprintf(outputFile, "Wrong option instruction, please fix the file!!!");
+				fseek(instruction,65,SEEK_SET);
 				break;
 			}
 		}
 	}
 	else fprintf(outputFile, "failt to extracting the kitchen data!!\n");
+	FreeThemAll(&steakHouse);
 	fclose(instruction);
 	fclose(outputFile);
 	fclose(dishes);
