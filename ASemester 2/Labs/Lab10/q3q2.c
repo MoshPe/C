@@ -27,10 +27,8 @@ int main()
     //placing the PArray to point the Array addresses
 	for (i = 0; i < N; i++)
 		PArray[i] = &Array[i];
-
 	printf("Enter strings with space between them,'end' to finish  ");
 	scanf("%s", TempStr);
-
 	while (strcmp(TempStr, "end"))
 	{
 
@@ -54,7 +52,6 @@ int main()
 
 	for (i = 0; i < CurrentCount; i++)
 		free(Array[i]);
-
 	return 0;
 }
 BOOL IsFull()
@@ -69,6 +66,7 @@ BOOL Str_Comp(void* FirstElement, void* SecondElement)
 		return TRUE;
 	return FALSE;
 }
+////////////////////////////
 void Insert(BOOL(*f)(void*, void*), void* Element, void** Parray)
 {
 	int i = CurrentCount++;
@@ -81,5 +79,3 @@ void Insert(BOOL(*f)(void*, void*), void* Element, void** Parray)
     //placing the element in the right position
 	Parray[i] = Element;
 }
-
-

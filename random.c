@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <Windows.h>
+#include<string.h>
+#include<stdlib.h>
+
 void main()
 {
 	int i, j, k;
@@ -30,8 +33,6 @@ void main()
 		} // if
 
 		code_array[i] = ch1;
-        Sleep(500);
-        printf("%c  , ",code_array[i]);
-
-	} //for 
+     
+	} //for
 } // main

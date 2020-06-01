@@ -17,8 +17,8 @@ typedef struct Product
 	float price;
 	int quantity;
 	int ordersCount;       ////////////////////////////////////////////////array                                                     
-	struct Product* next, * prev;      
-}Product, * pProduct;                                               
+	struct Product* next, * prev;
+}Product, * pProduct;
 
 typedef struct Kitchen
 {
@@ -42,17 +42,17 @@ typedef struct Resturant
 int createProducts(FILE*, PResturant, FILE*);
 void addItems(char*, int, FILE*, PKitchen);
 int orderItems(char*, int, int, PResturant, FILE*);
-void removeItem(char*,int,int,PKitchen, PResturant, FILE*);
+void removeItem(char*, int, int, PKitchen, PResturant, FILE*);
 int removeTable(int, PResturant, FILE*);
 int isTableExists(int, int, FILE*);
 pProduct getProductAddress(char*, PKitchen);
-void CheckStringsLength(char*, unsigned int, char*, PResturant);
-pProduct addNewItem(PResturant);
+int CheckStringsLength(char*, unsigned int, char*, PResturant,FILE*);
+pProduct addNewProduct(PResturant);
 void delete_list(pProduct);
 void Error_Msg(char*);
 void FreeThemAll(PResturant);
 void tableReset(PResturant);
-int validation_Input(char*,int,float,PResturant);
+int validation_Input(char*, int, float, PResturant,FILE*);
 
 
 #endif // ! _Resturant

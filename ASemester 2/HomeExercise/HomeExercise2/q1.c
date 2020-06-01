@@ -121,9 +121,9 @@ void main()
 	} while (Finish != 1);
 }
 /*
-Function name: CheckStrings
-Input: A string, the size required,the name of the string, the University to free before exit(1)
-Algoritem: It checks the length of the string by strlen() function, if it is above the required length
+*Function name: CheckStrings
+?Input: A string, the size required,the name of the string, the University to free before exit(1)
+!Algoritem: It checks the length of the string by strlen() function, if it is above the required length
 		   the function pulls out a message and terminate the program
 */
 void CheckStrings(char* s, unsigned int size, char* name, University* inputUniv)

@@ -1,5 +1,6 @@
 #include "Resturant.h"
 
+//TODO Care about the malloc free problem, bcuz you free twice and you cant xD
 void main()
 {
 	int instruction_guide;
@@ -32,7 +33,7 @@ void main()
 	}
 	else
 	{
-		fprintf(outputFile,"\nThe table amount inside instruction file is incorrect");
+		fprintf(outputFile, "\nThe table amount inside instruction file is incorrect");
 		error_input = 1;
 	}
 	//reseting all the tables checkoutputFilePrice and list
@@ -53,7 +54,7 @@ void main()
 			switch (instruction_guide)
 			{
 			case 1:
-				fprintf(outputFile,"Extracting data to the kitchen is aviable to do only once!!!");
+				fprintf(outputFile, "Extracting data to the kitchen is aviable to do only once!!!");
 				break;
 			case 2:
 				fscanf(instruction, "%s %d", productName, &productAmount);
@@ -61,8 +62,8 @@ void main()
 				break;
 			case 3:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
-				if(orderItems(productName, tableIndex, productAmount, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-                    error_input = 1;
+				if (orderItems(productName, tableIndex, productAmount, &steakHouse, outputFile) == NO_MEMORY_ERROR)
+					error_input = 1;
 				break;
 			case 4:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
@@ -70,19 +71,19 @@ void main()
 				break;
 			case 5:
 				fscanf(instruction, "%d", &tableIndex);
-				if(removeTable(tableIndex, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-                    error_input = 1;
+				if (removeTable(tableIndex, &steakHouse, outputFile) == NO_MEMORY_ERROR)
+					error_input = 1;
 				break;
 
 			default:
-				fprintf(outputFile, "Wrong option instruction, please fix the file!!!");
-				fseek(instruction,65,SEEK_SET);
+				fprintf(outputFile, "\nWrong option instruction, please fix the file!!!");
+				fseek(instruction, 65, SEEK_SET);
 				break;
 			}
 		}
 	}
-	else fprintf(outputFile, "failt to extracting the kitchen data!!\n");
-	FreeThemAll(&steakHouse);
+	else fprintf(outputFile, "fail to extracting the kitchen data!!\n");
+	//FreeThemAll(&steakHouse);
 	fclose(instruction);
 	fclose(outputFile);
 	fclose(dishes);

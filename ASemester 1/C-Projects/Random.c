@@ -2,16 +2,15 @@
 #include<stdlib.h>
 #include<string.h>
 #include<assert.h>
+#include<time.h>
 
-void main()
+#define max 500
+int main()
 {
-	char *name;
-	name = (char*)malloc(50*sizeof(char));
-	printf("Enter your name: ");
-	gets(name);
-	printf("%s,,,",name);
-
-
-
+	int *arr;
+	arr = (int*)malloc(0*sizeof(int));
+	if (arr == NULL)
+		printf("Problem");
+	return 0;
 
 }

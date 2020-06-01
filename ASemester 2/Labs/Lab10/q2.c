@@ -47,6 +47,7 @@ BOOL Float_Sum(void *a, void *b, void *c)
     	return TRUE;
   return FALSE;
 }
+//////////////
 BOOL Sum( BOOL(*f)(void *,void *,void *), void **p_num, void *number)
 {
     int i,j;
