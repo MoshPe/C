@@ -1,18 +1,17 @@
-#include "Resturant.h"
+#include "Restaurant.h"
 
 
 
 
 
-int validation_Input(char* productName, int quantity, float price, PResturant steakHouse,FILE* outputFile)
+boolean validation_Input(char* productName, int quantity, float price, PRestaurant steakHouse,FILE* outputFile)
 {
 	//cheking if the product name string length is the correct length
-	if (CheckStringsLength(productName, 50, "product name", steakHouse,outputFile) == 0)
+	if (CheckStringsLength(productName, 50, "product name", steakHouse,outputFile) == FALSE)
 		return FALSE;
 	//Checking the terms for the price that has to be positive 
 	if (price < 0)
 	{
-		FreeThemAll(steakHouse);//TODO I dont think l need it, l will free at the end of the main
 		fprintf(stderr, "The new item price is incorrect\n");
 		fprintf(outputFile, "The new item price is incorrect\n");
 		return FALSE;
@@ -20,7 +19,6 @@ int validation_Input(char* productName, int quantity, float price, PResturant st
 	//Checking the terms for the price that has to be positive
 	if (quantity < 0)
 	{
-		FreeThemAll(steakHouse);//TODO I dont think l need it, l will free at the end of the main
 		fprintf(stderr, "The new item quanntity is incorrect\n");
 		fprintf(outputFile, "The new item price is incorrect\n");
 		return FALSE;
@@ -28,14 +26,13 @@ int validation_Input(char* productName, int quantity, float price, PResturant st
 	return TRUE;
 }
 //return 1 if the fucntion succeed and 0 if didnt
-int createProducts(FILE* inputFile, PResturant steakHouse, FILE* outputFile)
+boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile)
 {
 	char productName[MAX_CHARS];
 	pProduct isExist;
 	pProduct newNode = (pProduct)malloc(sizeof(Product));
 	if (newNode == NULL)
 	{
-		FreeThemAll(steakHouse);
 		fprintf(stderr, "Couldnt allocate memory for new item in the kitchen\n");
 		return NO_MEMORY_ERROR;//! problem with the free in the main 
 	}
@@ -47,7 +44,6 @@ int createProducts(FILE* inputFile, PResturant steakHouse, FILE* outputFile)
 		newNode->productName = (char*)malloc((strlen(productName) + 1) * sizeof(char));
 		if (newNode->productName == NULL)
 		{
-			FreeThemAll(steakHouse);//////////////////////////
 			fprintf(stderr, "Couldnt allocate memory for new item name");
 			return NO_MEMORY_ERROR;//! problem with the free in the main 
 		}
@@ -72,7 +68,6 @@ int createProducts(FILE* inputFile, PResturant steakHouse, FILE* outputFile)
 			newNode = (pProduct)malloc(sizeof(Product));
 			if (newNode == NULL)
 			{
-				FreeThemAll(steakHouse);
 				fprintf(stderr, "Couldnt allocate memory for new item in the kitchen");
 				return NO_MEMORY_ERROR;//! problem with the free in the main 
 			}
@@ -81,94 +76,80 @@ int createProducts(FILE* inputFile, PResturant steakHouse, FILE* outputFile)
 	return TRUE;
 }
 //adding more to the stock of a certain item that exist in the kithen
-void addItems(char* productName_toAdd, int itemAmount, FILE* outputFile, PKitchen mainKitchen)
+void addItems(char* productNameToAdd, int itemAmount, FILE* outputFile, PKitchen mainKitchen)
 {
 	pProduct productAddress;
 	//checking if the item is in the kitchen
-	productAddress = getProductAddress(productName_toAdd, mainKitchen);
+	productAddress = getProductAddress(productNameToAdd, mainKitchen);
 	if (productAddress == NULL)
 	{
 		fprintf(outputFile, "\nNo such item in the kitchen!!!");
-		return;//! problem with the free in the main 
+		return;
 	}
 	productAddress->quantity += itemAmount;
-	fprintf(outputFile, "\n%d %s were added to the kitchen", itemAmount, productName_toAdd);
+	fprintf(outputFile, "\n%d %s were added to the kitchen", itemAmount, productNameToAdd);
 }
 //adding items to the table dishes list
-int orderItems(char* productName, int tableIndex, int orderAmount, PResturant steakHouse, FILE* outputFile)
+boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaurant steakHouse, FILE* outputFile)
 {
-	pProduct product_kitchen_address;
-	pProduct get_table_dish_address;
+	pProduct productKitchenAddress;
+	pProduct getTableDishAddress;
 	pProduct newProduct;
 	if (orderAmount <= 0)
 	{
 		fprintf(outputFile, "\nincorrect order Amount");
 		return FALSE;
 	}
-	if (isTableExists(tableIndex, steakHouse->amountOfTables, outputFile) == 0)
+	if (!isTableExists(tableIndex, steakHouse->amountOfTables, outputFile))
 		return FALSE;
-	product_kitchen_address = getProductAddress(productName, &steakHouse->mainKitchen);
-	if (product_kitchen_address == NULL)
+	productKitchenAddress = getProductAddress(productName, &steakHouse->mainKitchen);
+	if (productKitchenAddress == NULL)
 	{
 		fprintf(outputFile, "\nWe don't have %s, sorry!", productName);
 		return FALSE;
 	}
-	if (product_kitchen_address->quantity < orderAmount)
+	if (productKitchenAddress->quantity < orderAmount)
 	{
 		fprintf(outputFile, "\nThe required product had sold out!");
 		return FALSE;
 	}
 	//counting the amount of ordered dish
-	product_kitchen_address->ordersCount += orderAmount;
+	productKitchenAddress->ordersCount += orderAmount;
 	//checking if the table ordered the same dish
-	get_table_dish_address = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
-	if (get_table_dish_address != NULL)
+	getTableDishAddress = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
+	if (getTableDishAddress != NULL)
 	{
-		get_table_dish_address->quantity += orderAmount;
+		getTableDishAddress->quantity += orderAmount;
 		//updating the checkoutPrice price for the table
-		steakHouse->tables[tableIndex - 1].checkoutPrice += (product_kitchen_address->price * orderAmount);
+		steakHouse->tables[tableIndex - 1].checkoutPrice += (productKitchenAddress->price * orderAmount);
 	}
-	//making new node for input to table list
-	newProduct = addNewProduct(steakHouse);
-	if (newProduct == NULL)
-	{
-		fprintf(outputFile, "\nCouldnt allocate a new node for table number %d", tableIndex);
-		return NO_MEMORY_ERROR;
-	}
-	//updating the kitchen stock
-	product_kitchen_address->quantity -= orderAmount;
-	newProduct->productName = (char*)malloc((strlen(product_kitchen_address->productName) + 1) * sizeof(char));
-	if (newProduct->productName == NULL)
-	{
-		FreeThemAll(steakHouse);
-		fprintf(stderr, "\nCouldnt allocate memory for new item name");
-		return NO_MEMORY_ERROR;
-	}
-	//updating the new node
-	strcpy(newProduct->productName, product_kitchen_address->productName);
-	newProduct->price = product_kitchen_address->price;
-	newProduct->quantity = orderAmount;
-	newProduct->next = NULL;
-	//updating the checkoutPrice price for the table
-	steakHouse->tables[tableIndex - 1].checkoutPrice += (newProduct->price * orderAmount);
-	//checking if the list is empty updating the table list and table checkoutPrice
-	if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
-	{
-		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
-		steakHouse->tables[tableIndex - 1].dishes.tail = newProduct;
-	}
-	//updating the table list and table checkoutPrice
 	else
 	{
-		newProduct->next = steakHouse->tables[tableIndex - 1].dishes.head;
-		steakHouse->tables[tableIndex - 1].dishes.head->prev = newProduct;
-		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
+		//making new node for input to table list
+		newProduct = allocateNewProduct();
+		if (newProduct == NULL)
+		{
+			fprintf(outputFile, "\nCouldnt allocate a new node for table number %d", tableIndex);
+			return NO_MEMORY_ERROR;
+		}
+		//updating the kitchen stock
+		productKitchenAddress->quantity -= orderAmount;
+		newProduct->productName = (char*)malloc((strlen(productKitchenAddress->productName) + 1) * sizeof(char));
+		if (newProduct->productName == NULL)
+		{
+			//FreeThemAll(steakHouse);
+			fprintf(stderr, "\nCouldnt allocate memory for new item name");
+			return NO_MEMORY_ERROR;
+		}
+		//TODO updating the new node
+		updateNewNodeFields(newProduct,productKitchenAddress);
+		insertNewNode(steakHouse,newProduct);
 	}
 	fprintf(outputFile, "\n%d %s were added to table number %d", orderAmount, productName, tableIndex);
 	return TRUE;
 }
 //
-void removeItem(char* productName, int tableIndex, int orderAmount, PKitchen mainKitchen, PResturant steakHouse, FILE* outputFile)
+void removeItem(char* productName, int tableIndex, int orderAmount, PKitchen mainKitchen, PRestaurant steakHouse, FILE* outputFile)
 {
 	pProduct removeDishAddress;
 	if (orderAmount < 0)
@@ -199,7 +180,11 @@ void removeItem(char* productName, int tableIndex, int orderAmount, PKitchen mai
 		{
 			//checking if the dish is the head of the list
 			if (removeDishAddress == steakHouse->tables[tableIndex - 1].dishes.head)
+			{
 				steakHouse->tables[tableIndex - 1].dishes.head = NULL;
+				steakHouse->amountOfCheckedInTables--;
+			}
+				
 			//checking if the dish is the tail of the list
 			else if (removeDishAddress == steakHouse->tables[tableIndex - 1].dishes.tail)
 				steakHouse->tables[tableIndex - 1].dishes.tail = removeDishAddress->prev;
@@ -217,11 +202,10 @@ void removeItem(char* productName, int tableIndex, int orderAmount, PKitchen mai
 	}
 }
 //
-int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
+boolean removeTable(int tableIndex, PRestaurant steakHouse, FILE* outputFile)
 {
 	pProduct deleteTable;
 	Product popular;
-	int openTalbes = 0;
 	int i;
 	//checking if there are any open tables
 	if (steakHouse->amountOfTables == 0)
@@ -238,13 +222,7 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 	//checking if the table index is correct
 	else if (isTableExists(tableIndex, steakHouse->amountOfTables, outputFile) == 0)
 		return FALSE;
-	//counting the amount of open tables
-	for (i = 0; i < steakHouse->amountOfTables; i++)
-	{
-		if (steakHouse->tables[i].dishes.head != NULL)
-			openTalbes++;
-	}
-	if (openTalbes == 1)
+	if (steakHouse->amountOfCheckedInTables == 1)
 	{
 		//setting popular to the first node in the list of kithecn items
 		popular.ordersCount = steakHouse->mainKitchen.head->ordersCount;
@@ -258,7 +236,7 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 				popular.productName = (char*)malloc(strlen(deleteTable->productName + 1) * sizeof(char));
 				if (popular.productName == NULL)
 				{
-					FreeThemAll(steakHouse);
+					//FreeThemAll(steakHouse);
 					fprintf(stderr, "Couldnt allocate memory for popular name\n");
 					return NO_MEMORY_ERROR;
 				}
@@ -266,7 +244,7 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 			}
 			deleteTable = deleteTable->next;
 		}
-		//since its the only table in the resturant, head will be it
+		//since its the only table in the Restaurant, head will be it
 		//printing all the table data
 		deleteTable = steakHouse->tables[tableIndex - 1].dishes.head;
 
@@ -278,8 +256,9 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 		fprintf(outputFile, "\nThe most popular dish today is %s! (was ordered %d times)", popular.productName, popular.ordersCount);
 		//free the head's dishes list,since it had only 1 table open
 		delete_list(steakHouse->tables[tableIndex - 1].dishes.head);
-		//free all the resturant array
+		//free all the Restaurant array
 		//!free(steakHouse->tables);
+		steakHouse->amountOfCheckedInTables--;
 		return TRUE;
 	}
 	//if the table isnt the first and only table open,then free this table list
@@ -296,6 +275,34 @@ int removeTable(int tableIndex, PResturant steakHouse, FILE* outputFile)
 	steakHouse->tables[tableIndex - 1].checkoutPrice = 0;
 	return TRUE;
 }
+/////////
+void insertNewNode(PRestaurant steakHouse,pProduct newProduct)
+{
+	//updating the checkoutPrice price for the table
+	steakHouse->tables[tableIndex - 1].checkoutPrice += (newProduct->price * orderAmount);
+	//checking if the list is empty updating the table list and table checkoutPrice
+	if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
+	{
+		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
+		steakHouse->tables[tableIndex - 1].dishes.tail = newProduct;
+		steakHouse->amountOfCheckedInTables++;
+	}
+	//updating the table list and table checkoutPrice
+	else
+	{
+		newProduct->next = steakHouse->tables[tableIndex - 1].dishes.head;
+		steakHouse->tables[tableIndex - 1].dishes.head->prev = newProduct;
+		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
+	}
+}
+//////////////
+void updateNewNodeFields(pProduct newProduct,pProduct productKitchenAddress)
+	{
+		strcpy(newProduct->productName, productKitchenAddress->productName);
+		newProduct->price = productKitchenAddress->price;
+		newProduct->quantity = orderAmount;
+	}
+
 //checking if the product exist in the kitchen menu 
 pProduct getProductAddress(char* productName, PKitchen stock)
 {
@@ -309,7 +316,7 @@ pProduct getProductAddress(char* productName, PKitchen stock)
 	return NULL;
 }
 //checking if the given table index is correct
-int isTableExists(int index, int amountOfTables, FILE* outputFile)
+boolean isTableExists(int index, int amountOfTables, FILE* outputFile)
 {
 	if (index > amountOfTables || index < 0)
 	{
@@ -319,10 +326,12 @@ int isTableExists(int index, int amountOfTables, FILE* outputFile)
 	return TRUE;
 }
 // adding new node to a list
-pProduct addNewProduct(PResturant steakHouse)
+pProduct allocateNewProduct()
 {
 	pProduct temp;
 	temp = (pProduct)malloc(sizeof(Product));
+	temp->next = NULL;
+	temp->prev = NULL;
 	//the test if allocated is in the function
 	return temp;
 }
@@ -337,18 +346,17 @@ Input: A string, the size required,the name of the string, the University to fre
 Algoritem: It checks the length of the string by strlen() function, if it is above the required length
 		   the function pulls outputFile a message and terminate the program
 */
-int CheckStringsLength(char* stringInput, unsigned int requiredSize, char* stringName, PResturant steakHouse,FILE* outputFile)
+boolean CheckStringsLength(char* stringInput, unsigned int requiredSize, char* stringName, PRestaurant steakHouse,FILE* outputFile)
 {
 	if (strlen(stringInput) > requiredSize)
 	{
 		fprintf(stderr, "\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n\n", stringName, stringName);
 		fprintf(outputFile, "\ninvalid %s!-the %s is too long.\nPlease fix the input file and try again!!!\n\n", stringName, stringName);
-		FreeThemAll(steakHouse);
 		return FALSE;
 	}
 	return TRUE;
 }
-void FreeThemAll(PResturant steakHouse)
+void FreeThemAll(PRestaurant steakHouse)
 {
 	int i;
 	for (i = 0; i < steakHouse->amountOfTables; i++)
@@ -371,7 +379,7 @@ void delete_list(pProduct head)
 	}
 	head = NULL;
 }
-void tableReset(PResturant steakHouse)
+void tableReset(PRestaurant steakHouse)
 {
 	int i;
 	for (i = 0; i < steakHouse->amountOfTables; i++)
@@ -381,3 +389,43 @@ void tableReset(PResturant steakHouse)
 		steakHouse->tables[i].dishes.tail = NULL;
 	}
 }
+/////
+	boolean functionValidations(name)
+	{
+		int flag;
+		if(!NULL)
+		flag =0;
+		if (!flag)
+		{
+				switch (expression)
+			{
+			case "orderItems":
+						printf("%s %d %c",print[0]);
+				break;
+			
+			default:
+				break;
+			}
+
+		}
+		
+		
+	return TRUE;
+	}
+////////
+//TODO list/array of all the strings according to the if's
+//TODO array of flags every index is in relation to the error messages, in the case run on all the flags array 
+//TODO if array == flash/true and print my printf according to the index of the error messages
+
+
+char[2000] error;
+strcpy(error,'skdjdghjfghjlsghlskgd');
+flags - 		    [1]		[0]		[1]		[0]
+error messages - [string][string][string][string]
+
+if(!flag[i])
+	strcpy(errorMessage,"");
+
+
+error.
+

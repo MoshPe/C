@@ -55,7 +55,7 @@ BOOL Int_Comp(void* FirstElement, void* SecondElement)
 		return TRUE;
 	return FALSE;
 }
-////////////
+
 void Insert(BOOL(*f)(void*, void*), void* Element, void** Parray)
 {
 	int i;

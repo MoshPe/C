@@ -1,4 +1,4 @@
-#include "Resturant.h"
+#include "Restaurant.h"
 
 //TODO Care about the malloc free problem, bcuz you free twice and you cant xD
 void main()
@@ -7,8 +7,8 @@ void main()
 	int tableIndex;
 	char productName[MAX_CHARS];
 	int productAmount;
-	Resturant steakHouse;
-	int error_input = 0;
+	Restaurant steakHouse;
+	boolean errorInput = FALSE;
 	//
 	FILE* instruction, * outputFile, * dishes;
 	if (!(outputFile = fopen("outputFile.txt", "w")))
@@ -19,6 +19,8 @@ void main()
 		Error_Msg("\nThe Instructions file is wrong");
 	//getting the tables amount
 	fscanf(instruction, "%d", &steakHouse.amountOfTables);
+	//reseting the amount of open tables
+	steakHouse.amountOfCheckedInTables = 0;
 	if (steakHouse.amountOfTables > 0)
 	{
 		//creating an array of tables with the given tables amount
@@ -34,7 +36,7 @@ void main()
 	else
 	{
 		fprintf(outputFile, "\nThe table amount inside instruction file is incorrect");
-		error_input = 1;
+		errorInput = 1;
 	}
 	//reseting all the tables checkoutputFilePrice and list
 	tableReset(&steakHouse);
@@ -46,10 +48,10 @@ void main()
 	steakHouse.mainKitchen.head = NULL;
 	steakHouse.mainKitchen.tail = NULL;
 	//checking if successfully extracted data to kitchen list
-	if (createProducts(dishes, &steakHouse, outputFile) == 1)
+	if (createProducts(dishes, &steakHouse, outputFile) == TRUE)
 	{
 		fprintf(outputFile, "Success in extracting the kitchen data!!\nThe kitchen was created");
-		while (fscanf(instruction, "%d", &instruction_guide) != EOF && error_input != 1)
+		while (fscanf(instruction, "%d", &instruction_guide) != EOF && errorInput != 1)
 		{
 			switch (instruction_guide)
 			{
@@ -63,7 +65,7 @@ void main()
 			case 3:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
 				if (orderItems(productName, tableIndex, productAmount, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-					error_input = 1;
+					errorInput = TRUE;
 				break;
 			case 4:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
@@ -72,7 +74,7 @@ void main()
 			case 5:
 				fscanf(instruction, "%d", &tableIndex);
 				if (removeTable(tableIndex, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-					error_input = 1;
+					errorInput = 1;
 				break;
 
 			default:
@@ -83,7 +85,7 @@ void main()
 		}
 	}
 	else fprintf(outputFile, "fail to extracting the kitchen data!!\n");
-	//FreeThemAll(&steakHouse);
+	FreeThemAll(&steakHouse);
 	fclose(instruction);
 	fclose(outputFile);
 	fclose(dishes);
