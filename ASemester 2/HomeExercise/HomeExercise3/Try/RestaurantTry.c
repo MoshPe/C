@@ -29,7 +29,7 @@ boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile
 	pProduct newNode = (pProduct)malloc(sizeof(Product));
 	if (newNode == NULL)
 	{
-		fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item in the kitchen");
+		fprintf(stderr, "Couldnt allocate memory for new item in the kitchen\n");
 		return NO_MEMORY_ERROR;//! problem with the free in the main 
 	}
 	newNode->next = NULL;
@@ -40,7 +40,7 @@ boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile
 		newNode->productName = (char*)malloc((strlen(productName) + 1) * sizeof(char));
 		if (newNode->productName == NULL)
 		{
-			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item name");
+			fprintf(stderr, "Couldnt allocate memory for new item name");
 			return NO_MEMORY_ERROR;//! problem with the free in the main 
 		}
 		strcpy(newNode->productName, productName);
@@ -64,22 +64,23 @@ boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile
 			newNode = (pProduct)malloc(sizeof(Product));
 			if (newNode == NULL)
 			{
-				fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item in the kitchen");
+				fprintf(outputFile, "Couldnt allocate memory for new item in the kitchen");
 				return NO_MEMORY_ERROR;//! problem with the free in the main 
 			}
 		}
 	}
 	return TRUE;
 }
-//adding more to the stock of a certain item that exist in the kitchen
+//adding more to the stock of a certain item that exist in the kithen
 void addItems(char* productNameToAdd, int addItemAmount, FILE* outputFile, PRestaurant steakHouse)
 {
 	pProduct productAddress;
-	productAddress = getProductAddress(productNameToAdd, &steakHouse->mainKitchen);
-	if (!isFunctionValid(steakHouse, addItemsValidation, DEFAULT_TABLE_INDEX, addItemAmount, productAddress, outputFile))
+	productAddress = functionValidations(steakHouse, addItemsTwo, noTableIndexNeeded, addItemAmount, productNameToAdd, outputFile);
+	if (productAddress == NULL)
 		return;
 	productAddress->quantity += addItemAmount;
 	fprintf(outputFile, "\n%d %s were added to the kitchen", addItemAmount, productNameToAdd);
+
 }
 //adding items to the table dishes list
 boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaurant steakHouse, FILE* outputFile)
@@ -89,13 +90,8 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 	pProduct getTableDishAddress;
 	pProduct newProduct;
 	//todo
-	productKitchenAddress = getProductAddress(productName, &steakHouse->mainKitchen);
+	productKitchenAddress = functionValidations(steakHouse, orderItemsThree, tableIndex, orderAmount, productName, outputFile);
 	if (productKitchenAddress == NULL)
-	{
-		fprintf(outputFile, "\nWe don't have %s, sorry!", productName);
-		return FALSE;
-	}
-	if(!isFunctionValid(steakHouse, orderItemsValidation, tableIndex, orderAmount, productKitchenAddress, outputFile))
 		return FALSE;
 	//counting the amount of ordered dish
 	productKitchenAddress->ordersCount += orderAmount;
@@ -107,7 +103,7 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 	if (getTableDishAddress != NULL)
 	{
 		getTableDishAddress->quantity += orderAmount;
-		//updating the checkOutPrice price for the table
+		//updating the checkoutPrice price for the table
 		steakHouse->tables[tableIndex - 1].checkoutPrice += (productKitchenAddress->price * orderAmount);
 	}
 	else
@@ -116,7 +112,7 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 		newProduct = allocateNewProduct();
 		if (newProduct == NULL)
 		{
-			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE," new node for table number");
+			fprintf(outputFile, "\nCouldnt allocate a new node for table number %d", tableIndex);
 			return NO_MEMORY_ERROR;
 		}
 		//updating the kitchen stock
@@ -125,7 +121,7 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 		if (newProduct->productName == NULL)
 		{
 			//todo FreeThemAll(steakHouse);
-			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item name");
+			fprintf(stderr, "\nCouldnt allocate memory for new item name");
 			return NO_MEMORY_ERROR;
 		}
 		//TODO updating the new node
@@ -138,15 +134,15 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 /////////
 void insertNewNode(PRestaurant steakHouse, pProduct newProduct, int tableIndex, int orderAmount)
 {
-	//updating the checkOutPrice price for the table
+	//updating the checkoutPrice price for the table
 	steakHouse->tables[tableIndex - 1].checkoutPrice += (newProduct->price * orderAmount);
-	//checking if the list is empty updating the table list and table checkOutPrice
+	//checking if the list is empty updating the table list and table checkoutPrice
 	if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
 	{
 		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
 		steakHouse->tables[tableIndex - 1].dishes.tail = newProduct;
 	}
-	//updating the table list and table checkOutPrice
+	//updating the table list and table checkoutPrice
 	else
 	{
 		newProduct->next = steakHouse->tables[tableIndex - 1].dishes.head;
@@ -163,57 +159,75 @@ void updateNewNodeFields(pProduct newProduct, pProduct productKitchenAddress, in
 }
 
 //
-void removeItem(char* productName, int tableIndex, int itemAmountToReturn, PKitchen mainKitchen, PRestaurant steakHouse, FILE* outputFile)
+void removeItem(char* productName, int tableIndex, int itemReturnAmount, PKitchen mainKitchen, PRestaurant steakHouse, FILE* outputFile)
 {
-	pProduct dishAddressToRemove;
-	dishAddressToRemove = getProductAddress(productName, &steakHouse->mainKitchen);
-	if(!isFunctionValid(steakHouse, removeItemValidation, tableIndex, itemAmountToReturn, dishAddressToRemove, outputFile))
+	pProduct removeDishAddress;
+	removeDishAddress = functionValidations(steakHouse, removeItemFour, tableIndex, itemReturnAmount, productName, outputFile);
+	if (removeDishAddress == NULL)
 		return;
-		//updating the checkOutPrice price after returning the dish
-		steakHouse->tables[tableIndex - 1].checkoutPrice -= (dishAddressToRemove->price * itemAmountToReturn);
+		//updating the checkoutPrice price after returning the dish
+		steakHouse->tables[tableIndex - 1].checkoutPrice -= (removeDishAddress->price * itemReturnAmount);
 	//checking if we have to eliminate the whole node or just reduce the quantity
-	if (dishAddressToRemove->quantity == itemAmountToReturn)
+	if (removeDishAddress->quantity == itemReturnAmount)
 	{
 		//checking if the dish is the head of the list
-		if (dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.head)
+		if (removeDishAddress == steakHouse->tables[tableIndex - 1].dishes.head)
 		{
 			steakHouse->tables[tableIndex - 1].dishes.head = NULL;
-			steakHouse->tables[tableIndex - 1].dishes.tail = NULL;
 			steakHouse->amountOfCheckedInTables--;
 		}
 		//checking if the dish is the tail of the list
-		else if (dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.tail)
-			steakHouse->tables[tableIndex - 1].dishes.tail = dishAddressToRemove->prev;
-		//the dish is in the list
+		else if (removeDishAddress == steakHouse->tables[tableIndex - 1].dishes.tail)
+			steakHouse->tables[tableIndex - 1].dishes.tail = removeDishAddress->prev;
+		//the dish is int the list
 		else
 		{
-			dishAddressToRemove->prev->next = dishAddressToRemove->next;
-			dishAddressToRemove->next->prev = dishAddressToRemove->prev;
+			removeDishAddress->prev->next = removeDishAddress->next;
+			removeDishAddress->next->prev = removeDishAddress->prev;
 		}
-		free(dishAddressToRemove->productName);
-		free(dishAddressToRemove);
+		free(removeDishAddress);
 	}
 	else
-		dishAddressToRemove->quantity -= itemAmountToReturn;
-	fprintf(outputFile, "\n%d %s was returned to the kitchen from table number %d", itemAmountToReturn, productName, tableIndex);
+		removeDishAddress->quantity -= itemReturnAmount;
+	fprintf(outputFile, "\n%d %s was returned to the kitchen from table number %d", itemReturnAmount, productName, tableIndex);
 }
 //
 boolean removeTable(int tableIndex, PRestaurant steakHouse, FILE* outputFile)
 {
-	pProduct tableAddressToDelete;
-
-	tableAddressToDelete = steakHouse->tables[tableIndex - 1].dishes.head;
-	if(!isFunctionValid(steakHouse, removeTableValidation, tableIndex, DEFAULT_ITEM_AMOUNT, tableAddressToDelete, outputFile))
+	pProduct deleteTableAddress;
+	Product popular;
+	pProduct findPopularDish;
+	deleteTableAddress = functionValidations(steakHouse, removeTableFive, tableIndex, noOrderAddRemoveItemAmountNeeded, noProductNameNeeded, outputFile);
+	if (deleteTableAddress == NULL)
 		return FALSE;
 	if (steakHouse->amountOfCheckedInTables == 1)
 	{
-		tableAddressToDelete = getPopularDish(steakHouse);
-		printTableCheckOut(steakHouse, tableIndex, outputFile);
-		fprintf(outputFile, "The most popular dish today is %s! (was ordered %d times)\n", tableAddressToDelete->productName, tableAddressToDelete->ordersCount);
+		//setting popular to the first node in the list of kitchen items
+		popular.ordersCount = steakHouse->mainKitchen.head->ordersCount;
+		findPopularDish = steakHouse->mainKitchen.head;
+		//looping thorough all the kithchen list to find the most popular item
+		while (findPopularDish != NULL)
+		{
+			if (findPopularDish->ordersCount > popular.ordersCount)
+			{
+				popular.ordersCount = findPopularDish->ordersCount;
+				popular.productName = (char*)malloc(strlen(findPopularDish->productName + 1) * sizeof(char));
+				if (popular.productName == NULL)
+				{
+					//FreeThemAll(steakHouse);
+					fprintf(stderr, "Couldnt allocate memory for popular name\n");
+					return NO_MEMORY_ERROR;
+				}
+				strcpy(popular.productName, findPopularDish->productName);
+			}
+			findPopularDish = findPopularDish->next;
+		}
+		checkOutTablePrint(deleteTableAddress, steakHouse, tableIndex, outputFile);
+		fprintf(outputFile, "The most popular dish today is %s! (was ordered %d times)\n", popular.productName, popular.ordersCount);
 	}
 	//if the table isn't the first and the table open,then free this table list
 	else
-		printTableCheckOut(steakHouse, tableIndex, outputFile);
+		checkOutTablePrint(deleteTableAddress, steakHouse, tableIndex, outputFile);
 	return TRUE;
 }
 
@@ -304,105 +318,99 @@ void tableReset(PRestaurant steakHouse)
 	}
 }
 /////
-boolean isFunctionValid(PRestaurant steakHouse, int functionName, int tableIndex, int itemAmountByAction, pProduct productAddress, FILE* outputFile)
+pProduct functionValidations(PRestaurant steakHouse, int functionName, int tableIndex, int actionToItemAmount, char* productName, FILE* outputFile)
 {
+	//reseting the new validationCheck 
+	pProduct validationCheck = NULL;
 	if (!isTableExists(tableIndex, steakHouse->amountOfTables, outputFile))
-		return FALSE;
+		return NULL;
 	else
 	{
 		switch (functionName)
 		{
-		case addItemsValidation:
-				if (productAddress == NULL)
+		case addItemsTwo:
+			validationCheck = getProductAddress(productName, &steakHouse->mainKitchen);
+				if (validationCheck == NULL)
 					{
 					fprintf(outputFile, "\nNo such item in the kitchen!!!");
-					return FALSE;
+					return NULL;
 					}
-				if (itemAmountByAction <= 0)
+				if (actionToItemAmount <= 0)
 					{
 					fprintf(outputFile, "\nThe item quantity to add is incorrect!");
-					return FALSE;
+					return NULL;
 					}
 				break;
-			case orderItemsValidation:
-				if (productAddress->quantity < itemAmountByAction)
+			case orderItemsThree:
+				validationCheck = getProductAddress(productName, &steakHouse->mainKitchen);
+				if (validationCheck == NULL)
+					{
+					fprintf(outputFile, "\nWe don't have %s, sorry!", productName);
+					return NULL;
+					}
+				if (validationCheck->quantity < actionToItemAmount)
 					{
 					fprintf(outputFile, "\nThe required product had sold out!");
-					return FALSE;
+					return NULL;
 					}
-				if (itemAmountByAction <= 0)
+				if (actionToItemAmount <= 0)
 					{
 					fprintf(outputFile, "\nIncorrect order amount!!");
-					return FALSE;
+					return NULL;
 					}
 				break;
-			case removeItemValidation:
-					if (itemAmountByAction <= 0)
+			case removeItemFour:
+					if (actionToItemAmount <= 0)
 						{
 						fprintf(outputFile, "incorrect quantities\n");
-						return FALSE;
+						return NULL;
 						}
-					//brings back the dish location in the table list
-					//productAddress = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
-					if (productAddress == NULL)
+				//brings back the dish location in the table list
+					validationCheck = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
+					if (validationCheck == NULL)
 						{
-						fprintf(outputFile, "\nThis table did not ordered %s, sorry!", productAddress->productName);
-						return FALSE;
+						fprintf(outputFile, "\nThis table did not ordered %s, sorry!", productName);
+						return NULL;
 						}
-					if (productAddress->quantity < itemAmountByAction)
+					if (validationCheck->quantity < actionToItemAmount)
 						{
 						fprintf(outputFile, "\nThis table had ordered less then required to return the dish!");
-						return FALSE;
+						return NULL;
 						}
 				break;
-			case removeTableValidation:
+			case removeTableFive:
 					//checking if there are any open tables
 					if (steakHouse->amountOfTables == 0)
 						{
 						fprintf(outputFile, "\nThere are no open tables!");
-						return FALSE;
+						return NULL;
 						}
 					//checking if the given table index had ordered anything
 					if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
 						{
 						fprintf(outputFile, "\nThe table number %d has not ordered yet!", tableIndex);
-						return FALSE;
+						return NULL;
 						}
-				break;
+					else
+						validationCheck = steakHouse->tables[tableIndex - 1].dishes.head;
+					break;
 		}
 	}
-	return TRUE;
+	return validationCheck;
 }
-void printTableCheckOut(PRestaurant steakHouse,int tableIndex,FILE* outputFile)
+void checkOutTablePrint(pProduct deleteTableAddress, PRestaurant steakHouse,int tableIndex,FILE* outputFile)
 {
-	pProduct tableAddressToDelete;
 	fprintf(outputFile, "\nThe dishes that table number %d ordered: ", tableIndex);
+	deleteTableAddress = steakHouse->tables[tableIndex - 1].dishes.head;
 	while (steakHouse->tables[tableIndex - 1].dishes.head != NULL)
 	{
-		tableAddressToDelete = steakHouse->tables[tableIndex - 1].dishes.head;
-		fprintf(outputFile, "\n%d %s. %.1f nis,please!", tableAddressToDelete->quantity, tableAddressToDelete->productName, tableAddressToDelete->price * (float)(tableAddressToDelete->quantity));
-		free(tableAddressToDelete->productName);
+		deleteTableAddress = steakHouse->tables[tableIndex - 1].dishes.head;
+		fprintf(outputFile, "\n%d %s. %.1f nis,please!", deleteTableAddress->quantity, deleteTableAddress->productName, deleteTableAddress->price * (float)(deleteTableAddress->quantity));
+		free(deleteTableAddress->productName);
 		steakHouse->tables[tableIndex - 1].dishes.head = steakHouse->tables[tableIndex - 1].dishes.head->next;
-		free(tableAddressToDelete);
+		free(deleteTableAddress);
 	}
 	steakHouse->tables[tableIndex - 1].checkoutPrice = 0;
 	steakHouse->amountOfCheckedInTables--;
 }
-
-pProduct getPopularDish(PRestaurant steakHouse)
-{
-	pProduct popularDishAddress;
-	pProduct dishAddressIterator;
-
-	//setting popular to the first node in the list of kitchen items
-	popularDishAddress = steakHouse->mainKitchen.head;
-	dishAddressIterator = steakHouse->mainKitchen.head;
-	//looping thorough all the kithchen list to find the most popular item
-	while (dishAddressIterator != NULL)
-	{
-		if (dishAddressIterator->ordersCount > popularDishAddress->ordersCount)
-			popularDishAddress = dishAddressIterator;
-		dishAddressIterator = dishAddressIterator->next;
-	}
-	return popularDishAddress;
-}
+////////

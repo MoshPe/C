@@ -9,13 +9,13 @@ void main()
 	int productAmount;
 	Restaurant steakHouse;
 	boolean errorInput = FALSE;
-	//
+	//////////////////
 	FILE* instruction, * outputFile, * dishes;
-	if (!(outputFile = fopen("outputFile.txt", "w")))
+	if (!(outputFile = fopen("blablablabla.txt", "w")))
 		Error_Msg("\nThe input file is wrong");
-	if (!(dishes = fopen("Manot.txt", "r")))
+	if (!(dishes = fopen("TestManot.txt", "r")))
 		Error_Msg("\nThe Manot file is wrong");
-	if (!(instruction = fopen("Instructions.txt", "r")))
+	if (!(instruction = fopen("TestInstructions.txt", "r+")))
 		Error_Msg("\nThe Instructions file is wrong");
 	//getting the tables amount
 	fscanf(instruction, "%d", &steakHouse.amountOfTables);
@@ -30,13 +30,16 @@ void main()
 			fclose(instruction);
 			fclose(outputFile);
 			fclose(dishes);
-			Error_Msg("Couldn't allocat memory for tables");
+			Error_Msg("Couldn't allocate memory for tables");
 		}
 	}
 	else
 	{
 		fprintf(outputFile, "\nThe table amount inside instruction file is incorrect");
-		errorInput = 1;
+		fclose(instruction);
+		fclose(outputFile);
+		fclose(dishes);
+		exit(1);
 	}
 	//reseting all the tables checkoutputFilePrice and list
 	tableReset(&steakHouse);
@@ -51,7 +54,7 @@ void main()
 	if (createProducts(dishes, &steakHouse, outputFile) == TRUE)
 	{
 		fprintf(outputFile, "Success in extracting the kitchen data!!\nThe kitchen was created");
-		while (fscanf(instruction, "%d", &instruction_guide) != EOF && errorInput != 1)
+		while (fscanf(instruction, "%d", &instruction_guide) != EOF && errorInput != TRUE)
 		{
 			switch (instruction_guide)
 			{
@@ -60,7 +63,7 @@ void main()
 				break;
 			case 2:
 				fscanf(instruction, "%s %d", productName, &productAmount);
-				addItems(productName, productAmount, outputFile, &steakHouse.mainKitchen);
+				addItems(productName, productAmount, outputFile, &steakHouse);
 				break;
 			case 3:
 				fscanf(instruction, "%d %s %d", &tableIndex, productName, &productAmount);
@@ -74,12 +77,12 @@ void main()
 			case 5:
 				fscanf(instruction, "%d", &tableIndex);
 				if (removeTable(tableIndex, &steakHouse, outputFile) == NO_MEMORY_ERROR)
-					errorInput = 1;
+					errorInput = TRUE;
 				break;
-
 			default:
 				fprintf(outputFile, "\nWrong option instruction, please fix the file!!!");
-				fseek(instruction, 65, SEEK_SET);
+				while (getc(instruction) != '\n')
+					fseek(instruction, 1, SEEK_CUR);
 				break;
 			}
 		}

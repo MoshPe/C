@@ -16,14 +16,19 @@ int main()
 	void *p_num[N];
 	for (i = 0; i < N; i++)
         p_num[i]=&num[i];
+
 	printf("\nPlease enter an integer number ");
 	scanf("%d", &value);
+	
 	if( Sum(Int_Sum,p_num,&value) == TRUE)
    		printf("There is such sum\n");
+	
 	else
   		printf("There is no such sum\n");
-    for (i = 0; i < N; i++)
+    
+	for (i = 0; i < N; i++)
         p_num[i] = &fnum[i];
+	
 	printf("\nPlease enter a float number ");
 	scanf("%f", &fvalue);
 	if( Sum (Float_Sum,p_num,&fvalue) == TRUE)

@@ -1,12 +1,6 @@
-#ifndef  _Restaurant
+#ifndef _Restaurant
 #define _Restaurant
-
-//#define NO_MEMORY_ERROR 2
-//#define TRUE 1
-//#define FALSE 0
-
-typedef enum {FALSE,TRUE,NO_MEMORY_ERROR,}boolean;
-
+////
 #define MAX_CHARS 200
 #define _CRT_SECURE_NO_WARNINGS
 ////
@@ -14,20 +8,19 @@ typedef enum {FALSE,TRUE,NO_MEMORY_ERROR,}boolean;
 #include <stdlib.h>
 #include <string.h>
 ////
-typedef struct error
-{
-	char[200] name1;
-	char[200] name2;
-	char[200] name3;
-	char[200] name4; 
-}error;
+typedef enum boolean { FALSE, TRUE, NO_MEMORY_ERROR} boolean;
+typedef enum functionName { addItemsValidation, orderItemsValidation, removeItemValidation, removeTableValidation} functionName;
+////
+#define DEFAULT_TABLE_INDEX 1
+#define DEFAULT_ITEM_AMOUNT 1
+#define ALLOCATION_ERROR_TEMPLATE "\n Couldnt allocate memory for %s"
 ////
 typedef struct Product
 {
 	char* productName;
 	float price;
 	int quantity;
-	int ordersCount; 
+	int ordersCount;
 	struct Product* next, * prev;
 }Product, * pProduct;
 ////
@@ -47,25 +40,27 @@ typedef struct Restaurant
 	Kitchen mainKitchen;
 	PTable tables;
 	int amountOfTables;
-	int amountOfCheckedInTables;  
+	int amountOfCheckedInTables;
 }Restaurant, * PRestaurant;
 ////
+boolean validation_Input(char*, int, float, PRestaurant, FILE*);
+boolean CheckStringsLength(char*, unsigned int, char*, PRestaurant, FILE*);
 boolean createProducts(FILE*, PRestaurant, FILE*);
-void addItems(char*, int, FILE*, PKitchen);
+boolean isFunctionValid(PRestaurant, int, int, int, pProduct, FILE*);
+void addItems(char*, int, FILE*, PRestaurant);
 boolean orderItems(char*, int, int, PRestaurant, FILE*);
 void removeItem(char*, int, int, PKitchen, PRestaurant, FILE*);
 boolean removeTable(int, PRestaurant, FILE*);
+pProduct getPopularDish(PRestaurant);
+void printTableCheckOut(PRestaurant, int, FILE*);
 boolean isTableExists(int, int, FILE*);
 pProduct getProductAddress(char*, PKitchen);
-boolean CheckStringsLength(char*, unsigned int, char*, PRestaurant,FILE*);
 pProduct allocateNewProduct();
 void delete_list(pProduct);
 void Error_Msg(char*);
 void FreeThemAll(PRestaurant);
 void tableReset(PRestaurant);
-boolean validation_Input(char*, int, float, PRestaurant,FILE*);
-void updateNewNodeFields(pProduct,pProduct);
-void insertNewNode(PRestaurant,pProduct);
-
+void updateNewNodeFields(pProduct, pProduct, int);
+void insertNewNode(PRestaurant, pProduct,int,int);
 
 #endif // ! _Restaurant
