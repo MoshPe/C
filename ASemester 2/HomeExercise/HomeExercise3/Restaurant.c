@@ -1,5 +1,5 @@
 #include "Restaurant.h"
-
+//The fuction checks the perfection of the given parameters
 boolean validation_Input(char* productName, int quantity, float price,PRestaurant steakHouse,FILE* outputFile)
 {
 	//cheking if the product name string length is the correct length
@@ -21,22 +21,33 @@ boolean validation_Input(char* productName, int quantity, float price,PRestauran
 	}
 	return TRUE;
 }
-//return 1 if the function succeed and 0 if didn't
+/*
+Function name: createProducts
+Input: The Manot inputFile, the restaurant pointer and the output file
+Output: The function returns TRUE if it succeeded extracting data FALSE if it didnt successfuly extract the data
+		and NO_MEMORY_ERROR if the malloc of the new node returned NULL
+Algoritem: The function each time creates a new node by allocating memory, and then it puts the new data into that node
+			and place the node in the list from the tail(Without using the prev pointer field in the product) 
+*/
 boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile)
 {
 	char productName[MAX_CHARS];
 	pProduct isExist;
+	//creating new node
 	pProduct newNode = (pProduct)malloc(sizeof(Product));
 	if (newNode == NULL)
 	{
 		fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item in the kitchen");
 		return NO_MEMORY_ERROR;//! problem with the free in the main 
 	}
+	//reseting the next value in the new node
 	newNode->next = NULL;
 	while (fscanf(inputFile, "%s %d %f", productName, &newNode->quantity, &newNode->price) != EOF)
 	{
+		//Checking the perfecting of the given data
 		if (validation_Input(productName, newNode->quantity, newNode->price,steakHouse,outputFile) == FALSE)
 			return FALSE;
+		//creating a new string to the new node by allocating memory with the size of the given string
 		newNode->productName = (char*)malloc((strlen(productName) + 1) * sizeof(char));
 		if (newNode->productName == NULL)
 		{
@@ -44,66 +55,99 @@ boolean createProducts(FILE* inputFile, PRestaurant steakHouse, FILE* outputFile
 			return NO_MEMORY_ERROR;//! problem with the free in the main 
 		}
 		strcpy(newNode->productName, productName);
-		newNode->ordersCount = 0;
+		//reseting the amount of orders for the most popular dish
+		newNode->amountOfOrders = 0;
+		//Checking if the kitchen already hold that item in the kitchen
 		if ((isExist = getProductAddress(productName, &steakHouse->mainKitchen)) != NULL)
 			isExist->quantity += newNode->quantity;
 		else
 		{
-			//checking if the list in empty
+			//checking if the kitchen list in empty and putting the new item in the head and tail
 			if (steakHouse->mainKitchen.head == NULL && steakHouse->mainKitchen.tail == NULL)
 			{
 				steakHouse->mainKitchen.head = newNode;
 				steakHouse->mainKitchen.tail = newNode;
 			}
+			//if the list isnt empty, inputing the new item to the list from the tail
 			else
 			{
 				steakHouse->mainKitchen.tail->next = newNode;
 				steakHouse->mainKitchen.tail = newNode;
 				steakHouse->mainKitchen.tail->next = NULL;
 			}
+			//creating a new node for the next item
 			newNode = (pProduct)malloc(sizeof(Product));
 			if (newNode == NULL)
 			{
 				fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item in the kitchen");
-				return NO_MEMORY_ERROR;//! problem with the free in the main 
+				return NO_MEMORY_ERROR;
 			}
 		}
 	}
 	return TRUE;
 }
-//adding more to the stock of a certain item that exist in the kitchen
+/*
+Function name: addItems
+Input: The product name to add to the kitchen, it's amount, the output file for printing and the retaurant, steakHouse
+Output: The programs prints the product's name and quantity added to an exsisting item, else it prints that the kitchen
+		doesn't hold that item
+Algoritem: First the function checks the validation of the given product name and quantities, after that we get the 
+			item address we add the amount given to the item quantity
+*/
 void addItems(char* productNameToAdd, int addItemAmount, FILE* outputFile, PRestaurant steakHouse)
 {
-	pProduct productAddress;
-	productAddress = getProductAddress(productNameToAdd, &steakHouse->mainKitchen);
-	if (!isFunctionValid(steakHouse, addItemsValidation, DEFAULT_TABLE_INDEX, addItemAmount, productAddress, outputFile))
+	pProduct productAddressToAdd;
+	//checking if the item exist in the kitchen, return null if doesnt and its address if it does
+	productAddressToAdd = getProductAddress(productNameToAdd, &steakHouse->mainKitchen);
+	//Checking if the item available in the kitchen
+	if (productAddressToAdd == NULL)
+	{
+			fprintf(outputFile, "The kitchen doesn't hold %s!!!\n", productNameToAdd);
+			return;
+	}
+	if (!isFunctionValid(steakHouse, addItemsValidation, DEFAULT_TABLE_INDEX, addItemAmount, productAddressToAdd, outputFile))
 		return;
-	productAddress->quantity += addItemAmount;
-	fprintf(outputFile, "\n%d %s were added to the kitchen", addItemAmount, productNameToAdd);
+	//adding the quantities to an existing item in the kitchen
+	productAddressToAdd->quantity += addItemAmount;
+	fprintf(outputFile, "%d %s were added to the kitchen\n", addItemAmount, productNameToAdd);
+
 }
-//adding items to the table dishes list
+/*
+Function name: orderItems
+Input: The product name to add to the table,the table index ,the amount of product, 
+		the output file for printing and the retaurant, steakHouse,
+Output: returns TRUE if the fucntion succeeded in creating a new node and insert it to the table list 
+		FALSE if the product name or table index or the order amount is incorrect
+		NO_MEMORY_ERROR if the fucntion failed to allocate memory
+Algoritem: First the function checks the validation of the given product name,table index and the order amount
+			, after that the fucntion checks if the items is exist in the kitchen.
+			After all the test the fucntion creates a new node mallocly and transer the correct data to it,
+			and insert it to the table list
+*/
 boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaurant steakHouse, FILE* outputFile)
 {
 
 	pProduct productKitchenAddress;
 	pProduct getTableDishAddress;
 	pProduct newProduct;
-	//todo
+	//checking if the item exist in the kitchen, returns null if doesnt and its address if it does
 	productKitchenAddress = getProductAddress(productName, &steakHouse->mainKitchen);
+	//Checking if the item available in the kitchen
 	if (productKitchenAddress == NULL)
 	{
-		fprintf(outputFile, "\nWe don't have %s, sorry!", productName);
+		fprintf(outputFile, "We don't have %s, sorry!\n", productName);
 		return FALSE;
 	}
 	if(!isFunctionValid(steakHouse, orderItemsValidation, tableIndex, orderAmount, productKitchenAddress, outputFile))
 		return FALSE;
-	//counting the amount of ordered dish
-	productKitchenAddress->ordersCount += orderAmount;
+	//counting the amount of the ordered dish and saving it for the popular dish of the day
+	productKitchenAddress->amountOfOrders += orderAmount;
 	//checking if the table ordered the same dish
 	getTableDishAddress = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
 	//counting the number of open tables
 	if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
 		steakHouse->amountOfCheckedInTables++;
+	//if the items exist in the table, the function just adds the quantities to the same item
 	if (getTableDishAddress != NULL)
 	{
 		getTableDishAddress->quantity += orderAmount;
@@ -114,33 +158,38 @@ boolean orderItems(char* productName, int tableIndex, int orderAmount, PRestaura
 	{
 		//making new node for input to table list
 		newProduct = allocateNewProduct();
+		//checking if the allocation memory succeeded
 		if (newProduct == NULL)
 		{
-			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE," new node for table number");
+			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE," new node for table order");
+			//the main program(in the switch) checks if the allocation succeeded, if not the program ends
 			return NO_MEMORY_ERROR;
 		}
-		//updating the kitchen stock
+		//updating the kitchen item quantity
 		productKitchenAddress->quantity -= orderAmount;
+		//allocating memory for the new name in the same length of the given name
 		newProduct->productName = (char*)malloc((strlen(productKitchenAddress->productName) + 1) * sizeof(char));
+		//checking if the allocation memory succeeded
 		if (newProduct->productName == NULL)
 		{
-			//todo FreeThemAll(steakHouse);
 			fprintf(stderr, ALLOCATION_ERROR_TEMPLATE,"new item name");
+			//the main program(in the switch) checks if the allocation succeeded, if not the program ends
 			return NO_MEMORY_ERROR;
 		}
-		//TODO updating the new node
+		//updating the new node data(fields)
 		updateNewNodeFields(newProduct, productKitchenAddress,orderAmount);
-		insertNewNode(steakHouse, newProduct,tableIndex,orderAmount);
+		//inserting the new item in the table list
+		insertNewNode(steakHouse, newProduct,tableIndex);
+		//updating the checkOutPrice price for the table
+		steakHouse->tables[tableIndex - 1].checkoutPrice += (productKitchenAddress->price * orderAmount);
 	}
-	fprintf(outputFile, "\n%d %s were added to table number %d", orderAmount, productName, tableIndex);
+	fprintf(outputFile, "%d %s were added to table number %d\n", orderAmount, productName, tableIndex);
 	return TRUE;
 }
-/////////
-void insertNewNode(PRestaurant steakHouse, pProduct newProduct, int tableIndex, int orderAmount)
+//The function inserts the new giving node to the table list
+void insertNewNode(PRestaurant steakHouse, pProduct newProduct, int tableIndex)
 {
-	//updating the checkOutPrice price for the table
-	steakHouse->tables[tableIndex - 1].checkoutPrice += (newProduct->price * orderAmount);
-	//checking if the list is empty updating the table list and table checkOutPrice
+	//checking if the list is empty and updating the table list 
 	if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
 	{
 		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
@@ -154,34 +203,48 @@ void insertNewNode(PRestaurant steakHouse, pProduct newProduct, int tableIndex, 
 		steakHouse->tables[tableIndex - 1].dishes.head = newProduct;
 	}
 }
-//////////////
+//The fucntion updats the new giving node fields from the kitchen existing node
 void updateNewNodeFields(pProduct newProduct, pProduct productKitchenAddress, int orderAmount)
 {
 	strcpy(newProduct->productName, productKitchenAddress->productName);
 	newProduct->price = productKitchenAddress->price;
 	newProduct->quantity = orderAmount;
 }
-
-//
-void removeItem(char* productName, int tableIndex, int itemAmountToReturn, PKitchen mainKitchen, PRestaurant steakHouse, FILE* outputFile)
+/*
+Function name: removeItem
+Input: The product name to remove from the table,the table index ,the amount of product,
+		the output file for printing and the retaurant, steakHouse,
+Output: printf if the dish returned to the kitchen or that the table didnt ordered the dish 
+Algoritem: First the function checks the validation of the given product name,table index and the return amount
+			, after that the fucntion checks if the items is exist in the table.
+			After all the tests the fucntion remove the item from the list is the qunatity or the returned item
+			and the existing item is identical ,if not the functions just reduces the order amount
+*/
+void removeItem(char* productName, int tableIndex, int itemAmountToReturn, PRestaurant steakHouse, FILE* outputFile)
 {
 	pProduct dishAddressToRemove;
-	dishAddressToRemove = getProductAddress(productName, &steakHouse->mainKitchen);
-	if(!isFunctionValid(steakHouse, removeItemValidation, tableIndex, itemAmountToReturn, dishAddressToRemove, outputFile))
+	dishAddressToRemove = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
+	//checking if the item exist in the table, returns null if doesnt and its address if it does
+	if (dishAddressToRemove == NULL)
+	{
+		fprintf(outputFile, "This table did not ordered %s, sorry!\n", productName);
 		return;
-		//updating the checkOutPrice price after returning the dish
-		steakHouse->tables[tableIndex - 1].checkoutPrice -= (dishAddressToRemove->price * itemAmountToReturn);
+	}
+	if (!isFunctionValid(steakHouse, removeItemValidation, tableIndex, itemAmountToReturn, dishAddressToRemove, outputFile))
+			return;
+	//updating the checkOutPrice price after returning the dish
+	steakHouse->tables[tableIndex - 1].checkoutPrice -= (dishAddressToRemove->price * itemAmountToReturn);
 	//checking if we have to eliminate the whole node or just reduce the quantity
 	if (dishAddressToRemove->quantity == itemAmountToReturn)
 	{
-		//checking if the dish is the head of the list
-		if (dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.head)
+		//checking if the dish is the only dish int the table list
+		if (dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.head && dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.tail)
 		{
 			steakHouse->tables[tableIndex - 1].dishes.head = NULL;
 			steakHouse->tables[tableIndex - 1].dishes.tail = NULL;
 			steakHouse->amountOfCheckedInTables--;
 		}
-		//checking if the dish is the tail of the list
+		//checking if the dish is the tail of the list and there isnt only 1 dish in the table
 		else if (dishAddressToRemove == steakHouse->tables[tableIndex - 1].dishes.tail)
 			steakHouse->tables[tableIndex - 1].dishes.tail = dishAddressToRemove->prev;
 		//the dish is in the list
@@ -195,29 +258,39 @@ void removeItem(char* productName, int tableIndex, int itemAmountToReturn, PKitc
 	}
 	else
 		dishAddressToRemove->quantity -= itemAmountToReturn;
-	fprintf(outputFile, "\n%d %s was returned to the kitchen from table number %d", itemAmountToReturn, productName, tableIndex);
+	fprintf(outputFile, "%d %s was returned to the kitchen from table number %d\n", itemAmountToReturn, productName, tableIndex);
 }
-//
-boolean removeTable(int tableIndex, PRestaurant steakHouse, FILE* outputFile)
+/*
+Function name: removeTable
+Input: The table index,the output file for printing and the retaurant, steakHouse,
+Output: if the table is the last table, it prints the popular dish,otherwise,it only prints the 
+		table checkoutPrice and the dishes
+Algoritem: First the function checks the validation table index,after that the fucntion checks if the item
+			exist in the table.
+			After all the tests the fucntion free the table list and prints the table checkoutPrice and 
+			its dished that the table had
+*/
+void removeTable(int tableIndex, PRestaurant steakHouse, FILE* outputFile)
 {
 	pProduct tableAddressToDelete;
-
 	tableAddressToDelete = steakHouse->tables[tableIndex - 1].dishes.head;
 	if(!isFunctionValid(steakHouse, removeTableValidation, tableIndex, DEFAULT_ITEM_AMOUNT, tableAddressToDelete, outputFile))
-		return FALSE;
+		return;
+	//checking if there is only 1 table open then prints the popular dish
 	if (steakHouse->amountOfCheckedInTables == 1)
 	{
-		tableAddressToDelete = getPopularDish(steakHouse);
+		// prints the table dishes and checkoutPrice
 		printTableCheckOut(steakHouse, tableIndex, outputFile);
-		fprintf(outputFile, "The most popular dish today is %s! (was ordered %d times)\n", tableAddressToDelete->productName, tableAddressToDelete->ordersCount);
+		//getting the popular dish address
+		tableAddressToDelete = getPopularDish(steakHouse);
+		//prints the most popular dish
+		fprintf(outputFile, "The most popular dish today is %s! (was ordered %d times)\n", tableAddressToDelete->productName, tableAddressToDelete->amountOfOrders);
 	}
 	//if the table isn't the first and the table open,then free this table list
 	else
 		printTableCheckOut(steakHouse, tableIndex, outputFile);
-	return TRUE;
 }
-
-//checking if the product exist in the kitchen menu 
+//The function returns the item address from the kitchen or null if it doesnt exist in the kitchen
 pProduct getProductAddress(char* productName, PKitchen stock)
 {
 	pProduct temp = stock->head;
@@ -239,7 +312,7 @@ boolean isTableExists(int index, int amountOfTables, FILE* outputFile)
 	}
 	return TRUE;
 }
-// adding new node to a list
+//Allocating a new memory for product node and reseting its next and prev pointers
 pProduct allocateNewProduct()
 {
 	pProduct temp;
@@ -256,7 +329,8 @@ void Error_Msg(char* msg)
 }
 /*
 Function name: CheckStringsLength
-Input: A string, the size required,the name of the string, the University to free before exit(1)
+Input: A string to check, the size required,the name of the string, the string name, the retaurant
+	   ,steakHouse,the output file for printing
 Algoritem: It checks the length of the string by strlen() function, if it is above the required length
 		   the function pulls outputFile a message and terminate the program
 */
@@ -270,6 +344,7 @@ boolean CheckStringsLength(char* stringInput, unsigned int requiredSize, char* s
 	}
 	return TRUE;
 }
+//Free all the table lists and the main kitchen list and the steakHouse->tables product array
 void FreeThemAll(PRestaurant steakHouse)
 {
 	int i;
@@ -281,7 +356,7 @@ void FreeThemAll(PRestaurant steakHouse)
 	delete_list(steakHouse->mainKitchen.head);
 	free(steakHouse->tables);
 }
-//deleting a list
+//deletes the list and free the name in the same node
 void delete_list(pProduct head)
 {
 	pProduct temp;
@@ -293,6 +368,7 @@ void delete_list(pProduct head)
 	}
 	head = NULL;
 }
+//resets all the tables lists and the checkoutPrice 
 void tableReset(PRestaurant steakHouse)
 {
 	int i;
@@ -303,7 +379,7 @@ void tableReset(PRestaurant steakHouse)
 		steakHouse->tables[i].dishes.tail = NULL;
 	}
 }
-/////
+//The fucntion checks the main functions cases
 boolean isFunctionValid(PRestaurant steakHouse, int functionName, int tableIndex, int itemAmountByAction, pProduct productAddress, FILE* outputFile)
 {
 	if (!isTableExists(tableIndex, steakHouse->amountOfTables, outputFile))
@@ -313,82 +389,76 @@ boolean isFunctionValid(PRestaurant steakHouse, int functionName, int tableIndex
 		switch (functionName)
 		{
 		case addItemsValidation:
-				if (productAddress == NULL)
-					{
-					fprintf(outputFile, "\nNo such item in the kitchen!!!");
-					return FALSE;
-					}
+				//checks if the item quantity to add is correct
 				if (itemAmountByAction <= 0)
 					{
-					fprintf(outputFile, "\nThe item quantity to add is incorrect!");
-					return FALSE;
+						fprintf(outputFile, "The item quantity to add is incorrect!\n");
+						return FALSE;
 					}
 				break;
 			case orderItemsValidation:
+				//checks the amount of ordered items to the quantities available in the kitchen of the same item
 				if (productAddress->quantity < itemAmountByAction)
 					{
-					fprintf(outputFile, "\nThe required product had sold out!");
-					return FALSE;
+						fprintf(outputFile, "The required product had sold out!\n");
+						return FALSE;
 					}
+				//checks if the item quantity to add is correct
 				if (itemAmountByAction <= 0)
 					{
-					fprintf(outputFile, "\nIncorrect order amount!!");
-					return FALSE;
+						fprintf(outputFile, "Incorrect order amount!!\n");
+						return FALSE;
 					}
 				break;
 			case removeItemValidation:
-					if (itemAmountByAction <= 0)
-						{
+				//checks if the item quantity to add is correct
+				if (itemAmountByAction <= 0)
+					{
 						fprintf(outputFile, "incorrect quantities\n");
 						return FALSE;
-						}
-					//brings back the dish location in the table list
-					//productAddress = getProductAddress(productName, &steakHouse->tables[tableIndex - 1].dishes);
-					if (productAddress == NULL)
-						{
-						fprintf(outputFile, "\nThis table did not ordered %s, sorry!", productAddress->productName);
+					}
+				//checks the amount of returned items to the quantities available in the table of the same item
+				if (productAddress->quantity < itemAmountByAction)
+					{
+						fprintf(outputFile, "This table had ordered less then required to return the dish!\n");
 						return FALSE;
-						}
-					if (productAddress->quantity < itemAmountByAction)
-						{
-						fprintf(outputFile, "\nThis table had ordered less then required to return the dish!");
-						return FALSE;
-						}
+					}
 				break;
 			case removeTableValidation:
 					//checking if there are any open tables
 					if (steakHouse->amountOfTables == 0)
 						{
-						fprintf(outputFile, "\nThere are no open tables!");
-						return FALSE;
+							fprintf(outputFile, "There are no open tables!\n");
+							return FALSE;
 						}
 					//checking if the given table index had ordered anything
 					if (steakHouse->tables[tableIndex - 1].dishes.head == NULL)
 						{
-						fprintf(outputFile, "\nThe table number %d has not ordered yet!", tableIndex);
-						return FALSE;
+							fprintf(outputFile, "The table number %d has not ordered yet!\n", tableIndex);
+							return FALSE;
 						}
 				break;
 		}
 	}
 	return TRUE;
 }
+//prints the table dishes and the checkoutPrice for the table and reseting the table list
 void printTableCheckOut(PRestaurant steakHouse,int tableIndex,FILE* outputFile)
 {
 	pProduct tableAddressToDelete;
-	fprintf(outputFile, "\nThe dishes that table number %d ordered: ", tableIndex);
 	while (steakHouse->tables[tableIndex - 1].dishes.head != NULL)
 	{
 		tableAddressToDelete = steakHouse->tables[tableIndex - 1].dishes.head;
-		fprintf(outputFile, "\n%d %s. %.1f nis,please!", tableAddressToDelete->quantity, tableAddressToDelete->productName, tableAddressToDelete->price * (float)(tableAddressToDelete->quantity));
+		fprintf(outputFile, "%d %s.", tableAddressToDelete->quantity, tableAddressToDelete->productName);
 		free(tableAddressToDelete->productName);
 		steakHouse->tables[tableIndex - 1].dishes.head = steakHouse->tables[tableIndex - 1].dishes.head->next;
 		free(tableAddressToDelete);
 	}
+	fprintf(outputFile, "%.0f nis,please!\n", steakHouse->tables[tableIndex - 1].checkoutPrice);
 	steakHouse->tables[tableIndex - 1].checkoutPrice = 0;
 	steakHouse->amountOfCheckedInTables--;
 }
-
+//searching for the most popular dish with the max orders in the kitchen and return its address
 pProduct getPopularDish(PRestaurant steakHouse)
 {
 	pProduct popularDishAddress;
@@ -400,9 +470,16 @@ pProduct getPopularDish(PRestaurant steakHouse)
 	//looping thorough all the kithchen list to find the most popular item
 	while (dishAddressIterator != NULL)
 	{
-		if (dishAddressIterator->ordersCount > popularDishAddress->ordersCount)
+		if (dishAddressIterator->amountOfOrders > popularDishAddress->amountOfOrders)
 			popularDishAddress = dishAddressIterator;
 		dishAddressIterator = dishAddressIterator->next;
 	}
 	return popularDishAddress;
+}
+//The function goes down a line to avoid any incorrect instructions
+void optionValidationCheck(FILE* instruction)
+{
+	char optionValidationCheck = getc(instruction);
+	while (optionValidationCheck != '\n' && optionValidationCheck != EOF)
+		optionValidationCheck = getc(instruction);
 }

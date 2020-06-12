@@ -14,27 +14,27 @@ typedef enum functionName { addItemsValidation, orderItemsValidation, removeItem
 #define DEFAULT_TABLE_INDEX 1
 #define DEFAULT_ITEM_AMOUNT 1
 #define ALLOCATION_ERROR_TEMPLATE "\n Couldnt allocate memory for %s"
-////
+//define the product structure
 typedef struct Product
 {
 	char* productName;
 	float price;
 	int quantity;
-	int ordersCount;
+	int amountOfOrders;
 	struct Product* next, * prev;
 }Product, * pProduct;
-////
+//define the kitchen structure with list of products
 typedef struct Kitchen
 {
 	struct Product* head, * tail;
 }Kitchen, * PKitchen, tableDishes;
-////
+//define the table structure with list of dishes and checkoutPrice
 typedef struct Table
 {
 	float checkoutPrice;
 	tableDishes dishes;
 }Table, * PTable;
-////
+//define the Restaurant structure with an array of tables, kitchen and amount of tables and open tables
 typedef struct Restaurant
 {
 	Kitchen mainKitchen;
@@ -49,8 +49,8 @@ boolean createProducts(FILE*, PRestaurant, FILE*);
 boolean isFunctionValid(PRestaurant, int, int, int, pProduct, FILE*);
 void addItems(char*, int, FILE*, PRestaurant);
 boolean orderItems(char*, int, int, PRestaurant, FILE*);
-void removeItem(char*, int, int, PKitchen, PRestaurant, FILE*);
-boolean removeTable(int, PRestaurant, FILE*);
+void removeItem(char*, int, int, PRestaurant, FILE*);
+void removeTable(int, PRestaurant, FILE*);
 pProduct getPopularDish(PRestaurant);
 void printTableCheckOut(PRestaurant, int, FILE*);
 boolean isTableExists(int, int, FILE*);
@@ -61,6 +61,7 @@ void Error_Msg(char*);
 void FreeThemAll(PRestaurant);
 void tableReset(PRestaurant);
 void updateNewNodeFields(pProduct, pProduct, int);
-void insertNewNode(PRestaurant, pProduct,int,int);
+void insertNewNode(PRestaurant, pProduct,int);
+void optionValidationCheck(FILE*);
 
 #endif // ! _Restaurant

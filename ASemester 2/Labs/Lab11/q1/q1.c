@@ -35,8 +35,6 @@ int main()
 
 	while (!isEmpty(stack))
 	{
-		//*(char) casting beacuse its a specific program
-		//char* printChar = top(stack);
 		printf("%c", *(char*)top(stack));
 		pop(&stack, free_char);
 	}

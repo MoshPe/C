@@ -1,9 +1,6 @@
 #ifndef _stack
 #define _stack
 
-#include<stdio.h>
-#include<stdlib.h>
-
 typedef struct node * PSTACKNODE;
 
 void push(void*, PSTACKNODE*);
