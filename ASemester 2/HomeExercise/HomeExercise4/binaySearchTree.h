@@ -10,7 +10,7 @@
 #define Max(a,b) ((a) > (b)? (a): (b)) 
 
 typedef struct treeNode* PTreeNode;
-typedef struct functions* PFunctions;
+typedef struct Tree* PTree;
 // Some necessary type definitions
 typedef enum boolean { FALSE, TRUE, NO_MEMORY_ERROR } boolean;
 typedef enum side { LEFT, RIGHT } side;
@@ -22,17 +22,17 @@ typedef void* PKEY;
 typedef side(*isLeftOrRight)(PKEY, PKEY);
 typedef isEqual(*isKeysEqual)(PKEY, PKEY);
 typedef void(*printKeys)(PKEY, FILE*, char*);
-typedef void(*Free)(PTreeNode,PKEY);
+typedef void(*Free)(PKEY);
 
 // Interface functions 
-PFunctions initFunctionsStruct(isKeysEqual, isLeftOrRight, printKeys);
-isFree isKeyFree(PTreeNode, PKEY, PFunctions);
+PTree initFunctionsStruct(isKeysEqual, isLeftOrRight, printKeys);
+isFree isKeyFree(PTreeNode, PKEY, PTree);
 PTreeNode getAllocatedMemoryAddress();
-boolean addNewTreeNode(PTreeNode*, PKEY, PFunctions, FILE*);
-void printKeysByInorder(PTreeNode, PFunctions,int*,FILE*);
+boolean addNewTreeNode(PTreeNode*, PKEY, PTree, FILE*);
+void printKeysByInorderWay(PTreeNode, PTree,int*,FILE*);
 int treeHeight(PTreeNode);
-void printMaxKey(PTreeNode, PFunctions, FILE*);
-void printGivenKeysAmount(int*,PTreeNode, PFunctions, int*,int*, FILE*);
+void printMaxKey(PTreeNode, PTree, FILE*);
+void printGivenKeysAmount(PTreeNode, PTree, int*,int*, FILE*);
 void FreeThemAll(PTreeNode, Free);
 void Error_Msg(char*);
 void optionValidationCheck(FILE*);

@@ -5,24 +5,29 @@
 
 side isLeftOrRightInt(PKEY root, PKEY key)
 {
-	if (*(char*)root < *(char*)key)
+	if (*(int*)root < *(int*)key)
 		return RIGHT;
 	return LEFT;
 }
 isEqual isEqualInt(PKEY a, PKEY b)
 {
-	if (*(char*)a == *(char*)b)
+	if (*(int*)a == *(int*)b)
 		return EQUAL;
 	return NOT_EQUAL;
 }
 void printKeysInt(PKEY key, FILE* outPutFile, char* newNodePrintString)
 {
-	fprintf(outPutFile, "%c %s", *(char*)key, newNodePrintString);
+	fprintf(outPutFile, "%d %s", *(int*)key, newNodePrintString);
 }
-void freeInt(PTreeNode root,PKEY key)
+/*free the data allocated for the char,
+its a specific function and changes
+in different uses like struct which we have more
+things to free
+*/
+
+void freeInt(PKEY key)
 {
-	free(key);
-	free(root);
+	free((int*)key);
 }
 
 void main()
@@ -30,12 +35,13 @@ void main()
 	FILE* instruction, * outPutFile;
 	int instruction_guide;
 	PTreeNode root = NULL;
-	PFunctions functionManager = NULL;
+	PTree treeManager = NULL;
 	int printOnce = 1;
-	char keyToInsert, * PkeyToInsert;
-	int amountOfNodes = 0, amountOfKeysToPrint;
+	// for sending the address to the functions
+	int keyToInsert, * PkeyToInsert;
+	int amountOfKeysToPrint;
 	boolean memoryErrorAllocation = FALSE;
-	//
+
 	if (!(outPutFile = fopen("output.txt", "w")))
 		Error_Msg("\nThe output file is wrong");
 	if (!(instruction = fopen("Instructions.txt", "r")))
@@ -43,17 +49,23 @@ void main()
 		fclose(outPutFile);
 		Error_Msg("\nThe Instructions file is wrong\n");
 	}
-	if ((functionManager = initFunctionsStruct(isEqualInt, isLeftOrRightInt, printKeysInt)) == NULL)
+	/*reseting the treeManager structure with all the functions and the amount of nodes
+	  and checking if the function was successful 
+	*/
+	if ((treeManager = initFunctionsStruct(isEqualInt, isLeftOrRightInt, printKeysInt)) == NULL)
 	{
 		fprintf(outPutFile, ALLOCATION_ERROR_TEMPLATE, "functions manager");
 		memoryErrorAllocation = TRUE;
 	}
+	//extracting the instructions data from the instruction file 
 	while (fscanf(instruction, "%d", &instruction_guide) != EOF && memoryErrorAllocation != TRUE)
 	{
 		switch (instruction_guide)
 		{
 		case 1:
-			PkeyToInsert = (char*)malloc(sizeof(char));
+			// for sending the key address to the functions
+			PkeyToInsert = (int*)malloc(sizeof(int));
+			//checking if allocation was successful
 			if (PkeyToInsert == NULL)
 			{
 				fprintf(outPutFile,ALLOCATION_ERROR_TEMPLATE,"the new key!!");
@@ -61,48 +73,46 @@ void main()
 				memoryErrorAllocation = TRUE;
 				break;
 			}
-			fscanf(instruction, " %c", &keyToInsert);
+			fscanf(instruction, " %d", &keyToInsert);
+			//keeping the value of the key in the pointer and send it to the functions
 			*PkeyToInsert = keyToInsert;
-			if (!isKeyFree(root, PkeyToInsert, functionManager))
+			//checking if there is already the same key in the tree
+			if (!isKeyFree(root, PkeyToInsert, treeManager))
 			{
-				fprintf(outPutFile, "Error!\nThere is an existing node with the same key = %c\n",*PkeyToInsert);
+				fprintf(outPutFile, "Error!\nThere is an existing node with the same key = %d\n",*PkeyToInsert);
 				free(PkeyToInsert);
 				break;
 			}
-			if (addNewTreeNode(&root, PkeyToInsert, functionManager, outPutFile) == NO_MEMORY_ERROR)
+			//checking if the memory allocation in the function was a successful
+			if (addNewTreeNode(&root, PkeyToInsert, treeManager, outPutFile) == NO_MEMORY_ERROR)
 				memoryErrorAllocation = TRUE;
-			amountOfNodes++;
 			optionValidationCheck(instruction);
 			break;
 		case 2:
-			if (!amountOfNodes)
-			{
-				fprintf(outPutFile, "The tree is empty");
-				break;
-			}
-			printKeysByInorder(root, functionManager, &printOnce, outPutFile);
+			printKeysByInorderWay(root, treeManager, &printOnce, outPutFile);
 			printOnce = 1;
+			fputc('\n', outPutFile);
+			//checking if the rest of the instruction aren't incorrect
 			optionValidationCheck(instruction);
 			break;
 		case 3:
 			fprintf(outPutFile, "The height of your tree is %d\n", treeHeight(root));
+			//checking if the rest of the instruction aren't incorrect
 			optionValidationCheck(instruction);
 			break;
 		case 4:
-			if (!amountOfNodes)
-			{
-				fprintf(outPutFile, "The tree is empty");
-				break;
-			}
-			printMaxKey(root, functionManager, outPutFile);
+			printMaxKey(root, treeManager, outPutFile);
 			//checking if the rest of the instruction aren't incorrect
 			optionValidationCheck(instruction);
 			break;
 		case 5:
 			fscanf(instruction, "%d", &amountOfKeysToPrint);
-			printGivenKeysAmount(&amountOfNodes, root, functionManager,&amountOfKeysToPrint, &printOnce, outPutFile);
-			//fputc('\n', outPutFile);
-			printOnce = 1;
+			printGivenKeysAmount(root, treeManager,&amountOfKeysToPrint, &printOnce, outPutFile);
+			if (!printOnce)
+			{
+				fputc('\n', outPutFile);
+				printOnce = 1;
+			}
 			//checking if the rest of the instruction aren't incorrect
 			optionValidationCheck(instruction);
 			break;
@@ -114,7 +124,7 @@ void main()
 		}
 	}
 	FreeThemAll(root, freeInt);
-	free(functionManager);
+	free(treeManager);
 	fclose(outPutFile);
 	fclose(instruction);
 }
